@@ -18,9 +18,9 @@ public class Employe extends User {
         }
     }
     private String departement;
-    private String statutActivite;
+    private String activityStatus;
     
-    @OneToMany(mappedBy = "createur")
+    @OneToMany(mappedBy = "creator")
     private List<Ticket> tickets;
     
 

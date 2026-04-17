@@ -25,5 +25,5 @@ public class TicketHistory {
 
     @ManyToOne
     @JoinColumn(name = "executor_id", nullable = false)
-    private User executor; // Celui qui a modifié le ticket
+    private User executor;
 }

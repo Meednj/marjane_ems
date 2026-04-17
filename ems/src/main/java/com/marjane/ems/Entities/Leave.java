@@ -30,7 +30,7 @@ public class Leave {
 
     @Enumerated(EnumType.STRING)
     private LeaveType type;
-    private String motif;
+    private String subject;
     @Enumerated(EnumType.STRING)
     private LeaveStatus status;
     @ManyToOne

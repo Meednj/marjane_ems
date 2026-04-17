@@ -14,13 +14,13 @@ public abstract class User {
     private Long id;
     @Column(unique = true, nullable = false, updatable = false)
     private String EID;
-    private String nom;
-    private String prenom;
+    private String lastName;
+    private String firstName;
     private String email;
-    private String telephone;
-    private String motDePasse;
+    private String phone;
+    private String password;
     private String role;
-    private String statut;
+    private String status;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -14,8 +14,8 @@ public class Ticket {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "createur_id")
-    private Employe createur;
+    @JoinColumn(name = "creator_id")
+    private Employe creator;
 
     @ManyToOne
     @JoinColumn(name = "technician_id")

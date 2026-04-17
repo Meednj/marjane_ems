@@ -19,9 +19,9 @@ public class Presence {
     private User user;
 
 
-    private LocalDate datePresence;
-    private LocalTime heureArrivee;
-    private LocalTime heureDepart;
+    private LocalDate presenceDate;
+    private LocalTime arrivalTime;
+    private LocalTime departureTime;
 
     @Enumerated(EnumType.STRING)
     private PresenceStatus status;
