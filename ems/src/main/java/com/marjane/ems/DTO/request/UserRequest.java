@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 
 public record UserRequest(
+
     @NotBlank(message = "Last name is required")
     String lastName,
 
@@ -26,5 +27,7 @@ public record UserRequest(
     @NotBlank(message = "Role is required")
     String role,
 
-    String status
+        String status
+    
+    
 ) {}
