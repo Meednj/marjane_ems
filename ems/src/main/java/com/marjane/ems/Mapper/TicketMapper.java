@@ -1,5 +1,6 @@
 package com.marjane.ems.Mapper;
 
+import com.marjane.ems.DTO.request.TicketRequest;
 import com.marjane.ems.DTO.response.TicketResponse;
 import com.marjane.ems.Entities.Ticket;
 
@@ -29,5 +30,28 @@ public class TicketMapper {
             ticket.getUpdatedAt(),
             ticket.getResolvedAt()
         );
+    }
+
+    /**
+     * Converts a TicketRequest DTO to a Ticket entity.
+     */
+    public static Ticket toEntity(TicketRequest request) {
+        if (request == null) return null;
+
+        Ticket ticket = new Ticket();
+        ticket.setTitle(request.title());
+        ticket.setDescription(request.description());
+
+        return ticket;
+    }
+
+    /**
+     * Updates an existing Ticket entity with data from TicketRequest DTO.
+     */
+    public static void updateEntity(Ticket entity, TicketRequest request) {
+        if (request == null || entity == null) return;
+
+        entity.setTitle(request.title());
+        entity.setDescription(request.description());
     }
 }

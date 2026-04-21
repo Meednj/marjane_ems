@@ -1,5 +1,6 @@
 package com.marjane.ems.Mapper;
 
+import com.marjane.ems.DTO.request.LeaveRequest;
 import com.marjane.ems.DTO.response.LeaveResponse;
 import com.marjane.ems.Entities.Leave;
 
@@ -27,5 +28,30 @@ public class LeaveMapper {
             leave.getSubject(),
             leave.getStatus() != null ? leave.getStatus().name() : null
         );
+    }
+
+    /**
+     * Converts a LeaveRequest DTO to a Leave entity.
+     */
+    public static Leave toEntity(LeaveRequest request) {
+        if (request == null) return null;
+
+        Leave leave = new Leave();
+        leave.setStartDate(request.startDate());
+        leave.setEndDate(request.endDate());
+        leave.setSubject(request.subject());
+
+        return leave;
+    }
+
+    /**
+     * Updates an existing Leave entity with data from LeaveRequest DTO.
+     */
+    public static void updateEntity(Leave entity, LeaveRequest request) {
+        if (request == null || entity == null) return;
+
+        entity.setStartDate(request.startDate());
+        entity.setEndDate(request.endDate());
+        entity.setSubject(request.subject());
     }
 }

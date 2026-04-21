@@ -10,5 +10,14 @@ import com.marjane.ems.Entities.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEID(String EID);
+
     Optional<User> findByEmail(String email);
+    
+    boolean existsByEIDAndActiveTrue(String EID);
+
+    boolean existsByEID(String EID);
+    
+    void deleteByEID(String EID);
+
+    
 }

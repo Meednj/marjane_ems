@@ -1,5 +1,6 @@
 package com.marjane.ems.Mapper;
 
+import com.marjane.ems.DTO.request.TechnicianRequest;
 import com.marjane.ems.DTO.response.TechnicianResponse;
 import com.marjane.ems.Entities.Technician;
 
@@ -28,5 +29,34 @@ public class TechnicianMapper {
             technician.getCreatedAt(),
             technician.getUpdatedAt()
         );
+    }
+
+    /**
+     * Converts a TechnicianRequest DTO to a Technician entity.
+     */
+    public static Technician toEntity(TechnicianRequest request) {
+        if (request == null) return null;
+
+        Technician technician = new Technician();
+        technician.setLastName(request.lastName());
+        technician.setFirstName(request.firstName());
+        technician.setEmail(request.email());
+        technician.setPhone(request.phone());
+        technician.setStatus(request.status());
+
+        return technician;
+    }
+
+    /**
+     * Updates an existing Technician entity with data from TechnicianRequest DTO.
+     */
+    public static void updateEntity(Technician entity, TechnicianRequest request) {
+        if (request == null || entity == null) return;
+
+        entity.setLastName(request.lastName());
+        entity.setFirstName(request.firstName());
+        entity.setEmail(request.email());
+        entity.setPhone(request.phone());
+        entity.setStatus(request.status());
     }
 }
