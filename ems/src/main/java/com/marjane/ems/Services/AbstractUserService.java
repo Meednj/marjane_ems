@@ -20,7 +20,7 @@ public abstract class AbstractUserService<T extends User, REQ, RES> implements B
     @Override
     public Optional<RES> getByEID(String EID) {
         validateEID(EID);
-        return userRepository.findByEID(EID).map(this::mapToResponseGeneric);
+        return userRepository.findByEid(EID).map(this::mapToResponseGeneric);
     }
 
     @Override
@@ -40,8 +40,8 @@ public abstract class AbstractUserService<T extends User, REQ, RES> implements B
     @Override
     public void delete(String EID) {
         validateEID(EID);
-        if (!userRepository.existsByEID(EID)) throw new RuntimeException("User not found");
-        userRepository.deleteByEID(EID);
+        if (!userRepository.existsByEid(EID)) throw new RuntimeException("User not found");
+        userRepository.deleteByEid(EID);
     }
 
     // Common Logic for password hashing

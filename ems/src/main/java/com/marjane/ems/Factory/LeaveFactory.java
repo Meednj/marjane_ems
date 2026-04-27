@@ -5,17 +5,19 @@ import com.marjane.ems.Entities.Leave;
 import com.marjane.ems.Entities.LeaveType;
 import com.marjane.ems.Entities.LeaveStatus;
 import com.marjane.ems.Entities.User;
-import com.marjane.ems.Entities.Administrator;
+import java.time.LocalDateTime;
 
 /**
  * Factory class for creating Leave entities.
+ * @deprecated Use LeaveService instead
  */
+@Deprecated
 public class LeaveFactory {
 
     /**
      * Creates a Leave entity from a LeaveRequest and User.
      */
-    public Leave createLeave(LeaveRequest request, User user, Administrator approver) {
+    public Leave createLeave(LeaveRequest request, User user, User approver) {
         if (request == null) {
             throw new IllegalArgumentException("LeaveRequest cannot be null");
         }
@@ -33,11 +35,7 @@ public class LeaveFactory {
         leave.setStatus(request.status() != null ? 
             LeaveStatus.valueOf(request.status().toUpperCase()) : 
             LeaveStatus.PENDING);
-        
-        // Generate EID if not present
-        if (leave.getEID() == null) {
-            leave.setEID("L" + System.currentTimeMillis());
-        }
+        leave.setCreatedAt(LocalDateTime.now());
 
         return leave;
     }

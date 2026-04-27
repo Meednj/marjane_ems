@@ -26,7 +26,5 @@ public record EmployeRequest(
     @NotBlank(message = "Department is required")
     String departement,
 
-    String activityStatus,
-
     String status
 ) {}

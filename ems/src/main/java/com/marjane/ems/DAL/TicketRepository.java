@@ -18,4 +18,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByTechnicianId(Long technicianId);
     
     List<Ticket> findByTechnicianIdNull();
+
+    Long countByStatusIgnoreCase(String status);
 }

@@ -8,7 +8,8 @@ import com.marjane.ems.DAL.LeaveRepository;
 import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.DTO.request.LeaveRequest;
 import com.marjane.ems.DTO.response.LeaveResponse;
-import com.marjane.ems.Entities.Administrator;
+import com.marjane.ems.Entities.User;
+import com.marjane.ems.Entities.Role;
 import com.marjane.ems.Entities.Leave;
 import com.marjane.ems.Entities.LeaveStatus;
 import com.marjane.ems.Mapper.LeaveMapper;
@@ -38,11 +39,11 @@ public class LeaveServiceImpl implements LeaveService {
 
         if (request.approverId() != null) {
             userRepository.findById(request.approverId())
-                .filter(Administrator.class::isInstance)
+                .filter(user -> user.getRole() == Role.ADMIN)
                 .ifPresentOrElse(
-                    user -> leave.setApprover((Administrator) user),
+                    user -> leave.setApprover(user),
                     () -> {
-                        throw new RuntimeException("Approver not found with ID: " + request.approverId());
+                        throw new RuntimeException("Approver not found or not an Administrator with ID: " + request.approverId());
                     }
                 );
         }
@@ -135,10 +136,9 @@ public class LeaveServiceImpl implements LeaveService {
         Leave leave = leaveRepository.findById(leaveId)
             .orElseThrow(() -> new RuntimeException("Leave not found with ID: " + leaveId));
 
-        Administrator approver = userRepository.findById(approverId)
-            .filter(Administrator.class::isInstance)
-            .map(Administrator.class::cast)
-            .orElseThrow(() -> new RuntimeException("Approver not found with ID: " + approverId));
+        User approver = userRepository.findById(approverId)
+            .filter(user -> user.getRole() == Role.ADMIN)
+            .orElseThrow(() -> new RuntimeException("Approver not found or not an Administrator with ID: " + approverId));
 
         leave.setApprover(approver);
         leave.setStatus(LeaveStatus.APPROVED);
@@ -150,10 +150,9 @@ public class LeaveServiceImpl implements LeaveService {
         Leave leave = leaveRepository.findById(leaveId)
             .orElseThrow(() -> new RuntimeException("Leave not found with ID: " + leaveId));
 
-        Administrator approver = userRepository.findById(approverId)
-            .filter(Administrator.class::isInstance)
-            .map(Administrator.class::cast)
-            .orElseThrow(() -> new RuntimeException("Approver not found with ID: " + approverId));
+        User approver = userRepository.findById(approverId)
+            .filter(user -> user.getRole() == Role.ADMIN)
+            .orElseThrow(() -> new RuntimeException("Approver not found or not an Administrator with ID: " + approverId));
 
         leave.setApprover(approver);
         leave.setStatus(LeaveStatus.REJECTED);

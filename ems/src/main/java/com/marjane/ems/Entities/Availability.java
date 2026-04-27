@@ -18,8 +18,7 @@ public class Availability {
     @UpdateTimestamp
     private LocalDateTime updateTime;
 
-    // Relation vers l'utilisateur (ou l'employé spécifiquement)
-    @OneToOne // Souvent un utilisateur n'a qu'un seul état de disponibilité actuel
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

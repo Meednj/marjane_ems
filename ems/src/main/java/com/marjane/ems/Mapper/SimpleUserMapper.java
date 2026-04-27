@@ -19,7 +19,7 @@ public class SimpleUserMapper {
 
         return new SimpleUserResponse(
             user.getId(),
-            user.getEID(),
+            user.getEid(),
             user.getLastName(),
             user.getFirstName()
         );

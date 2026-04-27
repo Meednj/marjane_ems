@@ -5,21 +5,31 @@ import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.*;
 
+/**
+ * Ticket entity for task/issue management.
+ * References User directly - any user can create, but only TECHNICIAN roles
+ * should be assigned as technician in business logic.
+ */
 @Entity
-@Table(name = "tickets")
+@Table(name = "tickets", indexes = {
+    @Index(name = "idx_creator_id", columnList = "creator_id"),
+    @Index(name = "idx_technician_id", columnList = "technician_id"),
+    @Index(name = "idx_status", columnList = "status"),
+    @Index(name = "idx_created_at", columnList = "created_at")
+})
 @Data
 public class Ticket {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "creator_id")
-    private Employe creator;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;  // Any user can create
 
     @ManyToOne
     @JoinColumn(name = "technician_id")
-    private Technician technician;
+    private User technician;  // Filtered by TECHNICIAN role in service
 
     private String title;
     private String description;

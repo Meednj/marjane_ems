@@ -8,19 +8,24 @@ import com.marjane.ems.DAL.EmployeRepository;
 import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.DTO.request.EmployeRequest;
 import com.marjane.ems.DTO.response.EmployeResponse;
-import com.marjane.ems.Entities.Employe;
+import com.marjane.ems.Entities.User;
+import com.marjane.ems.Entities.Role;
+import com.marjane.ems.Entities.UserStatus;
 import com.marjane.ems.Mapper.EmployeMapper;
 
+/**
+ * Legacy Employee Service Implementation.
+ * @deprecated Use UserService instead
+ */
 @Service
-public class EmployeServiceImpl extends AbstractUserService<Employe, EmployeRequest, EmployeResponse>
+@Deprecated
+public class EmployeServiceImpl extends AbstractUserService<User, EmployeRequest, EmployeResponse>
         implements EmployeService {
 
-    private final EmployeRepository employeRepository;
     public EmployeServiceImpl(UserRepository userRepository, 
                               PasswordEncoder passwordEncoder, 
                               EmployeRepository employeRepository) {
         super(userRepository, passwordEncoder);
-        this.employeRepository = employeRepository;
     }
 
     @Override
@@ -29,21 +34,18 @@ public class EmployeServiceImpl extends AbstractUserService<Employe, EmployeRequ
             throw new IllegalArgumentException("Email already taken");
         }
 
-        Employe employe = mapToEntity(request);
+        User employe = mapToEntity(request);
         employe.setPassword(encodePassword(request.password()));
+        employe.setRole(Role.EMPLOYEE);
         
-        // Use employeRepository for specific child persistence
-        return mapToResponse(employeRepository.save(employe));
+        return mapToResponse(userRepository.save(employe));
     }
     @Override
     public EmployeResponse update(String EID, EmployeRequest request) {
-        // Optimization: One database call instead of two
-        Employe employe = userRepository.findByEID(EID)
-            .filter(Employe.class::isInstance)
-            .map(Employe.class::cast)
+        User employe = userRepository.findByEid(EID)
+            .filter(user -> user.getRole() == Role.EMPLOYEE)
             .orElseThrow(() -> new RuntimeException("Employee not found with EID: " + EID));
 
-        // Check email uniqueness if it's being changed
         if (request.email() != null && !request.email().equals(employe.getEmail())) {
             if (userRepository.findByEmail(request.email()).isPresent()) {
                 throw new IllegalArgumentException("Email already taken");
@@ -55,8 +57,9 @@ public class EmployeServiceImpl extends AbstractUserService<Employe, EmployeRequ
     }
     @Override
     public List<EmployeResponse> getByDepartement(String departement) {
-        // Use the specific repository! It's much faster than filtering manually.
-        List<Employe> employes = employeRepository.findByDepartement(departement);
+        List<User> employes = userRepository.findByRole(Role.EMPLOYEE).stream()
+            .filter(user -> user.getDepartment() != null && user.getDepartment().equals(departement))
+            .toList();
         
         if (employes.isEmpty()) {
             throw new RuntimeException("No employes found for departement: " + departement);
@@ -65,28 +68,35 @@ public class EmployeServiceImpl extends AbstractUserService<Employe, EmployeRequ
     }
 
     @Override
-    public List<EmployeResponse> getByActivityStatus(String activityStatus) {
-        List<Employe> employes = employeRepository.findByActivityStatusIgnoreCase(activityStatus);
+    public List<EmployeResponse> getByActivityStatus(String statusName) {
+        try {
+            UserStatus status = UserStatus.valueOf(statusName.toUpperCase());
+            List<User> employes = userRepository.findByRole(Role.EMPLOYEE).stream()
+                .filter(user -> user.getStatus() == status)
+                .toList();
 
-        if (employes.isEmpty()) {
-            throw new RuntimeException("No employes found with status: " + activityStatus);
+            if (employes.isEmpty()) {
+                throw new RuntimeException("No employes found with status: " + statusName);
+            }
+
+            return employes.stream().map(EmployeMapper::toResponse).toList();
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid status value: " + statusName);
         }
-
-        return employes.stream().map(EmployeMapper::toResponse).toList();
     }
 
     @Override
-    protected EmployeResponse mapToResponse(Employe entity) {
+    protected EmployeResponse mapToResponse(User entity) {
         return EmployeMapper.toResponse(entity);
     }
 
     @Override
-    protected Employe mapToEntity(EmployeRequest request) {
+    protected User mapToEntity(EmployeRequest request) {
         return EmployeMapper.toEntity(request);
     }
 
     @Override
-    protected void updateEntityFromRequest(Employe entity, EmployeRequest request) {
+    protected void updateEntityFromRequest(User entity, EmployeRequest request) {
         EmployeMapper.updateEntity(entity, request);
     }
 }

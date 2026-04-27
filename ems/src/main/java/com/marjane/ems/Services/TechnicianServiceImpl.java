@@ -7,20 +7,23 @@ import com.marjane.ems.DAL.TechnicianRepository;
 import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.DTO.request.TechnicianRequest;
 import com.marjane.ems.DTO.response.TechnicianResponse;
-import com.marjane.ems.Entities.Technician;
+import com.marjane.ems.Entities.User;
+import com.marjane.ems.Entities.Role;
 import com.marjane.ems.Mapper.TechnicianMapper;
 
+/**
+ * Legacy Technician Service Implementation.
+ * @deprecated Use UserService instead
+ */
 @Service
-public class TechnicianServiceImpl extends AbstractUserService<Technician, TechnicianRequest, TechnicianResponse>
+@Deprecated
+public class TechnicianServiceImpl extends AbstractUserService<User, TechnicianRequest, TechnicianResponse>
         implements TechnicianService {
-
-    private final TechnicianRepository technicianRepository;
 
     public TechnicianServiceImpl(UserRepository userRepository,
                                 PasswordEncoder passwordEncoder,
                                 TechnicianRepository technicianRepository) {
         super(userRepository, passwordEncoder);
-        this.technicianRepository = technicianRepository;
     }
 
     @Override
@@ -29,17 +32,17 @@ public class TechnicianServiceImpl extends AbstractUserService<Technician, Techn
             throw new IllegalArgumentException("Email already taken");
         }
 
-        Technician technician = mapToEntity(request);
+        User technician = mapToEntity(request);
         technician.setPassword(encodePassword(request.password()));
+        technician.setRole(Role.TECHNICIAN);
 
-        return mapToResponse(technicianRepository.save(technician));
+        return mapToResponse(userRepository.save(technician));
     }
 
     @Override
     public TechnicianResponse update(String EID, TechnicianRequest request) {
-        Technician technician = userRepository.findByEID(EID)
-            .filter(Technician.class::isInstance)
-            .map(Technician.class::cast)
+        User technician = userRepository.findByEid(EID)
+            .filter(user -> user.getRole() == Role.TECHNICIAN)
             .orElseThrow(() -> new RuntimeException("Technician not found with EID: " + EID));
 
         if (request.email() != null && !request.email().equals(technician.getEmail())) {
@@ -54,7 +57,9 @@ public class TechnicianServiceImpl extends AbstractUserService<Technician, Techn
 
     @Override
     public List<TechnicianResponse> getAvailableTechnicians() {
-        List<Technician> technicians = technicianRepository.findByStatusIgnoreCase("active");
+        List<User> technicians = userRepository.findByRole(Role.TECHNICIAN).stream()
+            .filter(user -> user.getStatus() != null && user.getStatus().isActive())
+            .toList();
 
         if (technicians.isEmpty()) {
             throw new RuntimeException("No available technicians found");
@@ -64,17 +69,17 @@ public class TechnicianServiceImpl extends AbstractUserService<Technician, Techn
     }
 
     @Override
-    protected TechnicianResponse mapToResponse(Technician entity) {
+    protected TechnicianResponse mapToResponse(User entity) {
         return TechnicianMapper.toResponse(entity);
     }
 
     @Override
-    protected Technician mapToEntity(TechnicianRequest request) {
+    protected User mapToEntity(TechnicianRequest request) {
         return TechnicianMapper.toEntity(request);
     }
 
     @Override
-    protected void updateEntityFromRequest(Technician entity, TechnicianRequest request) {
+    protected void updateEntityFromRequest(User entity, TechnicianRequest request) {
         TechnicianMapper.updateEntity(entity, request);
     }
 }

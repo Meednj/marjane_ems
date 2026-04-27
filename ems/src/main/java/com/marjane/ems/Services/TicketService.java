@@ -18,5 +18,7 @@ public interface TicketService {
     TicketResponse updateTicket(Long id, TicketRequest request);
     TicketResponse assignTicketToTechnician(Long ticketId, Long technicianId);
     TicketResponse updateTicketStatus(Long ticketId, String status);
+
     void deleteTicket(Long id);
+    Long countTicketsByStatus(String status);
 }

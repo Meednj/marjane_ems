@@ -9,5 +9,7 @@ public interface BaseUserService<REQ, RES> {
     Optional<RES> getByEID(String EID);
     List<RES> getAll();
     RES update(String EID, REQ request);
+
     void delete(String EID);
+    
 }

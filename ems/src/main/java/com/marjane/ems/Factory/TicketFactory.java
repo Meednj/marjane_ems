@@ -7,18 +7,19 @@ import com.marjane.ems.Entities.Ticket;
 import com.marjane.ems.Entities.TicketCategory;
 import com.marjane.ems.Entities.TicketPriority;
 import com.marjane.ems.Entities.TicketStatus;
-import com.marjane.ems.Entities.Employe;
-import com.marjane.ems.Entities.Technician;
+import com.marjane.ems.Entities.User;
 
 /**
  * Factory class for creating Ticket entities.
+ * @deprecated Use TicketService instead
  */
+@Deprecated
 public class TicketFactory {
 
     /**
-     * Creates a Ticket entity from a TicketRequest, creator, and optional technician.
+     * Creates a Ticket entity from a TicketRequest, creator (Employee), and optional technician (Technician).
      */
-    public Ticket createTicket(TicketRequest request, Employe creator, Technician technician) {
+    public Ticket createTicket(TicketRequest request, User creator, User technician) {
         if (request == null) {
             throw new IllegalArgumentException("TicketRequest cannot be null");
         }

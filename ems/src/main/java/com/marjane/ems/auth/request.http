@@ -1,0 +1,240 @@
+################################
+### AUTHENTICATION & LOGIN ###
+################################
+
+### Login user
+POST http://localhost:8080/api/users/login
+Content-Type: application/json
+
+{
+  "eid": "E001",
+  "password": "password123"
+}
+
+################################
+### USERS ENDPOINTS ###
+################################
+
+### Get total user count
+GET http://localhost:8080/api/users/count
+Content-Type: application/json
+
+################################
+### EMPLOYEES ENDPOINTS ###
+################################
+
+### Get all employees
+GET http://localhost:8080/api/employees
+Content-Type: application/json
+
+### Get employee by EID
+GET http://localhost:8080/api/employees/E001
+Content-Type: application/json
+
+### Get employee by email
+GET http://localhost:8080/api/employees/email/john.doe@company.com
+Content-Type: application/json
+
+### Get employees by department
+GET http://localhost:8080/api/employees/department/IT
+Content-Type: application/json
+
+### Get employees by status
+GET http://localhost:8080/api/employees/status/ACTIVE
+Content-Type: application/json
+
+################################
+### ADMINISTRATORS ENDPOINTS ###
+################################
+
+### Get all administrators
+GET http://localhost:8080/api/administrators
+Content-Type: application/json
+
+### Get administrator by EID
+GET http://localhost:8080/api/administrators/A001
+Content-Type: application/json
+
+### Get administrator by email
+GET http://localhost:8080/api/administrators/email/admin@company.com
+Content-Type: application/json
+
+################################
+### TECHNICIANS ENDPOINTS ###
+################################
+
+### Get all technicians
+GET http://localhost:8080/api/technicians
+Content-Type: application/json
+
+### Get technician by EID
+GET http://localhost:8080/api/technicians/T001
+Content-Type: application/json
+
+### Get technician by email
+GET http://localhost:8080/api/technicians/email/tech@company.com
+Content-Type: application/json
+
+### Get available technicians
+GET http://localhost:8080/api/technicians/available
+Content-Type: application/json
+
+################################
+### TICKETS ENDPOINTS ###
+################################
+
+### Get all tickets
+GET http://localhost:8080/api/tickets
+Content-Type: application/json
+
+### Get ticket by ID
+GET http://localhost:8080/api/tickets/1
+Content-Type: application/json
+
+### Get tickets by status
+GET http://localhost:8080/api/tickets/status/OPEN
+Content-Type: application/json
+
+### Get tickets by priority
+GET http://localhost:8080/api/tickets/priority/HIGH
+Content-Type: application/json
+
+### Get tickets by category
+GET http://localhost:8080/api/tickets/category/SOFTWARE
+Content-Type: application/json
+
+### Get tickets by creator ID
+GET http://localhost:8080/api/tickets/creator/1
+Content-Type: application/json
+
+### Get tickets by technician ID
+GET http://localhost:8080/api/tickets/technician/1
+Content-Type: application/json
+
+### Get unassigned tickets
+GET http://localhost:8080/api/tickets/unassigned
+Content-Type: application/json
+
+################################
+### LEAVES ENDPOINTS ###
+################################
+
+### Get all leaves
+GET http://localhost:8080/api/leaves
+Content-Type: application/json
+
+### Get leave by ID
+GET http://localhost:8080/api/leaves/1
+Content-Type: application/json
+
+### Get leaves by user ID
+GET http://localhost:8080/api/leaves/user/1
+Content-Type: application/json
+
+### Get leaves by status
+GET http://localhost:8080/api/leaves/status/APPROVED
+Content-Type: application/json
+
+### Get leaves by type
+GET http://localhost:8080/api/leaves/type/VACATION
+Content-Type: application/json
+
+### Get pending leave requests
+GET http://localhost:8080/api/leaves/pending
+Content-Type: application/json
+
+### Get leaves by approver ID
+GET http://localhost:8080/api/leaves/approver/1
+Content-Type: application/json
+
+### Get leaves by date range
+GET http://localhost:8080/api/leaves/date-range?startDate=2024-01-01&endDate=2024-12-31
+Content-Type: application/json
+
+################################
+### PRESENCE ENDPOINTS ###
+################################
+
+### Get all presence records
+GET http://localhost:8080/api/presence
+Content-Type: application/json
+
+### Get presence by ID
+GET http://localhost:8080/api/presence/1
+Content-Type: application/json
+
+### Get presence by user ID
+GET http://localhost:8080/api/presence/user/1
+Content-Type: application/json
+
+### Get presence by date
+GET http://localhost:8080/api/presence/date/2024-01-15
+Content-Type: application/json
+
+### Get presence by status
+GET http://localhost:8080/api/presence/status/PRESENT
+Content-Type: application/json
+
+### Get presence by shift ID
+GET http://localhost:8080/api/presence/shift/1
+Content-Type: application/json
+
+### Get presence by date range
+GET http://localhost:8080/api/presence/date-range?startDate=2024-01-01&endDate=2024-12-31
+Content-Type: application/json
+
+### Get presence by user and date range
+GET http://localhost:8080/api/presence/user/1/date-range?startDate=2024-01-01&endDate=2024-12-31
+Content-Type: application/json
+
+################################
+### SHIFTS ENDPOINTS ###
+################################
+
+### Get all shifts
+GET http://localhost:8080/api/shifts
+Content-Type: application/json
+
+### Get shift by ID
+GET http://localhost:8080/api/shifts/1
+Content-Type: application/json
+
+### Get shifts by date
+GET http://localhost:8080/api/shifts/date/2024-01-15
+Content-Type: application/json
+
+### Get shifts by user ID
+GET http://localhost:8080/api/shifts/user/1
+Content-Type: application/json
+
+### Get shifts by date range
+GET http://localhost:8080/api/shifts/date-range?startDate=2024-01-01&endDate=2024-12-31
+Content-Type: application/json
+
+################################
+### AVAILABILITY ENDPOINTS ###
+################################
+
+### Get all availability records
+GET http://localhost:8080/api/availability
+Content-Type: application/json
+
+### Get availability by ID
+GET http://localhost:8080/api/availability/1
+Content-Type: application/json
+
+### Get availability by user ID
+GET http://localhost:8080/api/availability/user/1
+Content-Type: application/json
+
+### Get availability by status
+GET http://localhost:8080/api/availability/status/AVAILABLE
+Content-Type: application/json
+
+################################
+### TEST ENDPOINT ###
+################################
+
+### Test endpoint
+GET http://localhost:8080/api/test/test
+Content-Type: application/json

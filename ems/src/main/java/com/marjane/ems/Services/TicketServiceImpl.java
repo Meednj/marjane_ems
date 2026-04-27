@@ -7,8 +7,8 @@ import com.marjane.ems.DAL.TicketRepository;
 import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.DTO.request.TicketRequest;
 import com.marjane.ems.DTO.response.TicketResponse;
-import com.marjane.ems.Entities.Employe;
-import com.marjane.ems.Entities.Technician;
+import com.marjane.ems.Entities.User;
+import com.marjane.ems.Entities.Role;
 import com.marjane.ems.Entities.Ticket;
 import com.marjane.ems.Entities.TicketStatus;
 import com.marjane.ems.Mapper.TicketMapper;
@@ -29,19 +29,19 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticket = TicketMapper.toEntity(request);
 
         userRepository.findById(request.creatorId())
-            .filter(Employe.class::isInstance)
+            .filter(user -> user.getRole() == Role.EMPLOYEE)
             .ifPresentOrElse(
-                user -> ticket.setCreator((Employe) user),
+                user -> ticket.setCreator(user),
                 () -> {
-                    throw new RuntimeException("Creator not found with ID: " + request.creatorId());
+                    throw new RuntimeException("Creator not found or not an Employee with ID: " + request.creatorId());
                 }
             );
 
         if (request.technicianId() != null) {
             userRepository.findById(request.technicianId())
-                .filter(Technician.class::isInstance)
+                .filter(user -> user.getRole() == Role.TECHNICIAN)
                 .ifPresentOrElse(
-                    user -> ticket.setTechnician((Technician) user),
+                    user -> ticket.setTechnician(user),
                     () -> {
                         throw new RuntimeException("Technician not found with ID: " + request.technicianId());
                     }
@@ -142,9 +142,8 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticket = ticketRepository.findById(ticketId)
             .orElseThrow(() -> new RuntimeException("Ticket not found with ID: " + ticketId));
 
-        Technician technician = userRepository.findById(technicianId)
-            .filter(Technician.class::isInstance)
-            .map(Technician.class::cast)
+        User technician = userRepository.findById(technicianId)
+            .filter(user -> user.getRole() == Role.TECHNICIAN)
             .orElseThrow(() -> new RuntimeException("Technician not found with ID: " + technicianId));
 
         ticket.setTechnician(technician);
@@ -166,5 +165,10 @@ public class TicketServiceImpl implements TicketService {
             throw new RuntimeException("Ticket not found with ID: " + id);
         }
         ticketRepository.deleteById(id);
+    }
+
+    @Override
+    public Long countTicketsByStatus(String status) {
+        return ticketRepository.countByStatusIgnoreCase(status);
     }
 }

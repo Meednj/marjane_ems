@@ -1,17 +1,7 @@
-import { Routes, Route } from "react-router-dom";
+import AppRouter from "./routes/AppRouter";
 
-import type { JSX } from "react/jsx-dev-runtime";
-import Login from "./components/Login";
-import { Dashboard } from "./components/Dashboard";
-
-function App(): JSX.Element {
-  return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-    </Routes>
-  );
+function App() {
+  return <AppRouter />;
 }
 
 export default App;

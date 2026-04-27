@@ -16,13 +16,13 @@ public class UserMapper {
 
         return new UserResponse(
             user.getId(),
-            user.getEID(),
+            user.getEid(),
             user.getLastName(),
             user.getFirstName(),
             user.getEmail(),
             user.getPhone(),
-            user.getRole(),
-            user.getStatus(),
+            user.getRole() != null ? user.getRole().name() : null,
+            user.getStatus() != null ? user.getStatus().name() : null,
             user.getCreatedAt(),
             user.getUpdatedAt()
         );

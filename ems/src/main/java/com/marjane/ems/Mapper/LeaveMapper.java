@@ -19,7 +19,7 @@ public class LeaveMapper {
 
         return new LeaveResponse(
             leave.getId(),
-            leave.getEID(),
+            null,  // Leave doesn't have an EID field
             leave.getUser() != null ? SimpleUserMapper.toResponse(leave.getUser()) : null,
             leave.getApprover() != null ? SimpleUserMapper.toResponse(leave.getApprover()) : null,
             leave.getStartDate(),
