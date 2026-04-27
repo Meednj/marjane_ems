@@ -14,7 +14,6 @@ const Dashboard = () => {
     totalUsers: 0,
     totalTickets: 0,
     openTickets: 0,
-    // TODO: Add more fields later
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,12 +35,12 @@ const Dashboard = () => {
 
         setUserRole(role);
 
-        // Only fetch data if user is admin (who has permission to view all resources)
+        // Only fetch data if user is admin
         if (role.toLowerCase().includes("admin")) {
           const dashboardData = await fetchDashboardStats();
           setStats(dashboardData);
         } else {
-          // For non-admin users, show limited data or message
+          // For non-admin users
           setError(
             `Limited access: Some statistics are only available to administrators. You are logged in as ${role}.`,
           );
@@ -49,7 +48,7 @@ const Dashboard = () => {
             totalUsers: 0,
             totalTickets: 0,
             openTickets: 0,
-            // TODO: Add more fields later
+        
           });
         }
       } catch (err) {
@@ -61,7 +60,7 @@ const Dashboard = () => {
           totalUsers: 0,
           totalTickets: 0,
           openTickets: 0,
-          // TODO: Add more fields later
+          
         });
       } finally {
         setLoading(false);

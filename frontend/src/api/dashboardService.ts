@@ -4,7 +4,6 @@ export interface DashboardData {
   totalUsers: number;
   totalTickets: number;
   openTickets: number;
-  // TODO: Add more fields later
   totalEmployees?: number;
   departmentsCount?: number;
   totalLeaves?: number;
@@ -39,7 +38,6 @@ export const fetchDashboardStats = async (): Promise<DashboardData> => {
       totalUsers: usersCountRes,
       totalTickets: ticketsCountRes,
       openTickets: openTicketsRes,
-      // TODO: Add more fields later
     };
   } catch (error) {
     console.error("Error fetching dashboard stats:", error);
@@ -85,7 +83,6 @@ export const fetchTicketsCount = async (): Promise<number> => {
 export const fetchOpenTickets = async (): Promise<number> => {
   try {
     const response = await api.get("api/tickets/count/status/PENDING");
-    // If the endpoint returns an array, get its length; if it returns a number, return it
     const data = response.data;
     return Array.isArray(data) ? data.length : data || 0;
   } catch (error) {
@@ -94,4 +91,3 @@ export const fetchOpenTickets = async (): Promise<number> => {
   }
 };
 
-// TODO: Add more fetch functions later for employees, leaves, technicians, administrators, etc.
