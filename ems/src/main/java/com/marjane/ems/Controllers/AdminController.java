@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.Entities.Role;
 import com.marjane.ems.Entities.User;
-import com.marjane.ems.Entities.UserStatus;
 import com.marjane.ems.Services.EIDGeneratorService;
 import com.marjane.ems.Services.UserService;
 
