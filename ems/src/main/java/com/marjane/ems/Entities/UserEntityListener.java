@@ -1,7 +1,6 @@
 package com.marjane.ems.Entities;
 
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PostLoad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
