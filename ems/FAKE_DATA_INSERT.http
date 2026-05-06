@@ -1,0 +1,577 @@
+###############################################
+### MARJANE EMS - FAKE DATA INSERT REQUESTS ###
+### IMPORTANT: Execute in EXACT ORDER!
+###############################################
+
+@baseUrl = http://localhost:8080/api
+@adminToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbi51c2VyIiwiaWF0IjoxNzc3Mzc0MDAzLCJleHAiOjE3NzczNzc2MDN9.YsDIM_tldN5vhdmhwSEQZm_lUmONtL9jq_-rjAZPzi0
+
+###############################################
+### 🚀 QUICK START GUIDE ###
+###############################################
+### 1. Run "Register Admin User" - Step 1
+### 2. Run "Login with Admin" - Step 2
+### 3. COPY the token from login response
+### 4. Paste it here: @adminToken = YOUR_TOKEN_HERE
+### 5. Run all remaining requests in order
+### 6. If 403 error → Check your token value
+###############################################
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "m.user",
+  "email": "m@marjane.ma",
+  "password": "password123",
+  "firstName": "Mohamed",
+  "lastName": "Nejjari",
+  "role": "TECHNICIAN"
+}
+
+###
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "eid": "A001",
+  "password": "password123"
+}
+
+@@ Rest client will show token in response - COPY IT and replace @adminToken variable above
+
+###############################################
+### STEP 3: CREATE DEPARTMENTS (WITH TOKEN) ###
+###############################################
+
+### Create IT Department
+POST {{baseUrl}}/departments
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "departmentId": 1,
+  "name": "Information Technology",
+  "description": "IT Department - Hardware and Software Support"
+}
+
+###
+
+### Create HR Department
+POST {{baseUrl}}/departments
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "departmentId": 2,
+  "name": "Human Resources",
+  "description": "HR Department - Recruitment and Staff Management"
+}
+
+###
+
+### Create Finance Department
+POST {{baseUrl}}/departments
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "departmentId": 3,
+  "name": "Finance",
+  "description": "Finance Department - Accounting and Financial Planning"
+}
+
+###
+
+### Create Sales Department
+POST {{baseUrl}}/departments
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "departmentId": 4,
+  "name": "Sales",
+  "description": "Sales Department - Customer Relations and Orders"
+}
+
+###############################################
+### 2. CREATE EMPLOYEES ###
+###############################################
+
+### Create Employee 1 - John Doe
+POST {{baseUrl}}/employees
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@marjane.ma",
+  "phone": "0601234567",
+  "password": "password123",
+  "departmentId": 1,
+  "status": "ACTIVE"
+}
+
+###
+
+### Create Employee 2 - Sarah Smith
+POST {{baseUrl}}/employees
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Sarah",
+  "lastName": "Smith",
+  "email": "sarah.smith@marjane.ma",
+  "phone": "0602345678",
+  "password": "SarahPassword123!",
+  "departmentId": 2,
+  "status": "ACTIVE"
+}
+
+###
+
+### Create Employee 3 - Michael Johnson
+POST {{baseUrl}}/employees
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Michael",
+  "lastName": "Johnson",
+  "email": "michael.johnson@marjane.ma",
+  "phone": "0603456789",
+  "password": "MichaelPassword123!",
+  "departmentId": 3,
+  "status": "ACTIVE"
+}
+
+###
+
+### Create Employee 4 - Emma Wilson
+POST {{baseUrl}}/employees
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Emma",
+  "lastName": "Wilson",
+  "email": "emma.wilson@marjane.ma",
+  "phone": "0604567890",
+  "password": "EmmaPassword123!",
+  "departmentId": 4,
+  "status": "ACTIVE"
+}
+
+###
+
+### Create Employee 5 - David Brown
+POST {{baseUrl}}/employees
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "David",
+  "lastName": "Brown",
+  "email": "david.brown@marjane.ma",
+  "phone": "0605678901",
+  "password": "DavidPassword123!",
+  "departmentId": 1,
+  "status": "ACTIVE"
+}
+
+###############################################
+### 3. CREATE TECHNICIANS ###
+###############################################
+
+### Create Technician 1 - Alex Martinez
+POST {{baseUrl}}/technicians
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Alex",
+  "lastName": "Martinez",
+  "email": "alex.martinez@marjane.ma",
+  "phone": "0606789012",
+  "password": "AlexPassword123!",
+  "status": "ACTIVE"
+}
+
+###
+
+### Create Technician 2 - Linda Garcia
+POST {{baseUrl}}/technicians
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Linda",
+  "lastName": "Garcia",
+  "email": "linda.garcia@marjane.ma",
+  "phone": "0607890123",
+  "password": "LindaPassword123!",
+  "status": "ACTIVE"
+}
+
+###
+
+### Create Technician 3 - Robert Davis
+POST {{baseUrl}}/technicians
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Robert",
+  "lastName": "Davis",
+  "email": "robert.davis@marjane.ma",
+  "phone": "0608901234",
+  "password": "RobertPassword123!",
+  "status": "ACTIVE"
+}
+
+###############################################
+### 4. CREATE ADMINISTRATORS ###
+###############################################
+
+### Create Administrator 1 - Ahmed Alami
+POST {{baseUrl}}/administrators
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Ahmed",
+  "lastName": "Alami",
+  "email": "admin@marjane.ma",
+  "phone": "0609012345",
+  "password": "AdminPassword123!",
+  "status": "ACTIVE"
+}
+
+###
+
+### Create Administrator 2 - Fatima Benani
+POST {{baseUrl}}/administrators
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Fatima",
+  "lastName": "Benani",
+  "email": "fatima.benani@marjane.ma",
+  "phone": "0610123456",
+  "password": "FatimaPassword123!",
+  "status": "ACTIVE"
+}
+
+###############################################
+### 5. CREATE SHIFTS ###
+###############################################
+
+### Create Morning Shift
+POST {{baseUrl}}/shifts
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "dateShift": "28-04-2026",
+  "starTime": "08:00",
+  "endTime": "16:00"
+}
+
+###
+
+### Create Afternoon Shift
+POST {{baseUrl}}/shifts
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "dateShift": "28-04-2026",
+  "starTime": "16:00",
+  "endTime": "00:00"
+}
+
+###
+
+### Create Night Shift
+POST {{baseUrl}}/shifts
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "dateShift": "28-04-2026",
+  "starTime": "00:00",
+  "endTime": "08:00"
+}
+
+###############################################
+### 6. CREATE TICKETS ###
+###############################################
+
+### Create Ticket 1 (Creator ID: 1, Technician ID: 1)
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "creatorId": 1,
+  "technicianId": 1,
+  "title": "Email Server Down",
+  "description": "Email server is not responding, clients cannot send or receive emails",
+  "category": "INFRASTRUCTURE",
+  "priority": "HIGH",
+  "status": "OPEN"
+}
+
+###
+
+### Create Ticket 2 (Creator ID: 2, Technician ID: 2)
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "creatorId": 2,
+  "technicianId": 2,
+  "title": "Password Reset Request",
+  "description": "Employee forgot their password and needs a reset",
+  "category": "ACCOUNT",
+  "priority": "MEDIUM",
+  "status": "OPEN"
+}
+
+###
+
+### Create Ticket 3 (Creator ID: 3, Technician ID: 3)
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "creatorId": 3,
+  "technicianId": 1,
+  "title": "Software Installation",
+  "description": "Install Microsoft Office on workstation in Finance department",
+  "category": "SOFTWARE",
+  "priority": "LOW",
+  "status": "OPEN"
+}
+
+###
+
+### Create Ticket 4 (Creator ID: 4, No Technician Assigned)
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "creatorId": 4,
+  "title": "Internet Connection Issues",
+  "description": "Slow internet speed in Sales department, affecting productivity",
+  "category": "NETWORK",
+  "priority": "HIGH",
+  "status": "OPEN"
+}
+
+###############################################
+### 7. CREATE PRESENCE RECORDS ###
+###############################################
+
+### Create Presence for User 1
+POST {{baseUrl}}/presences
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "userId": 1,
+  "presenceDate": "28-04-2026",
+  "arrivalTime": "08:15",
+  "departureTime": "17:30",
+  "status": "PRESENT",
+  "shiftId": 1
+}
+
+###
+
+### Create Presence for User 2
+POST {{baseUrl}}/presences
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "userId": 2,
+  "presenceDate": "28-04-2026",
+  "arrivalTime": "08:00",
+  "departureTime": "17:00",
+  "status": "PRESENT",
+  "shiftId": 1
+}
+
+###
+
+### Create Presence for User 3 (Absent)
+POST {{baseUrl}}/presences
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "userId": 3,
+  "presenceDate": "28-04-2026",
+  "status": "ABSENT",
+  "shiftId": 1
+}
+
+###############################################
+### 8. CREATE LEAVE REQUESTS ###
+###############################################
+
+### Create Leave Request for User 1
+POST {{baseUrl}}/leaves
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "userId": 1,
+  "approverId": 7,
+  "startDate": "02-05-2026",
+  "endDate": "05-05-2026",
+  "type": "VACATION",
+  "subject": "Personal vacation",
+  "status": "PENDING"
+}
+
+###
+
+### Create Leave Request for User 2
+POST {{baseUrl}}/leaves
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "userId": 2,
+  "approverId": 7,
+  "startDate": "15-05-2026",
+  "endDate": "15-05-2026",
+  "type": "SICK_LEAVE",
+  "subject": "Medical appointment",
+  "status": "PENDING"
+}
+
+###############################################
+### 9. CREATE AVAILABILITY ###
+###############################################
+
+### Set Availability for User 1
+POST {{baseUrl}}/availabilities
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "userId": 1,
+  "status": "AVAILABLE"
+}
+
+###
+
+### Set Availability for Technician 1
+POST {{baseUrl}}/availabilities
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "userId": 6,
+  "status": "AVAILABLE"
+}
+
+###############################################
+### 10. MIGRATE PASSWORDS & GENERATE EIDs ###
+###############################################
+
+### Hash Plain-Text Passwords
+POST {{baseUrl}}/admin/migrate-passwords
+Content-Type: application/json
+
+###
+
+### Generate Missing EIDs
+POST {{baseUrl}}/admin/generate-missing-eids
+Content-Type: application/json
+
+###############################################
+### 11. LOGIN TESTS ###
+###############################################
+
+### Login with Employee
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "eid": "E001",
+  "password": "JohnPassword123!"
+}
+
+###
+
+### Login with Technician
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "eid": "T001",
+  "password": "AlexPassword123!"
+}
+
+###
+
+### Login with Administrator
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "eid": "A001",
+  "password": "AdminPassword123!"
+}
+
+###############################################
+### FAKE DATA SUMMARY ###
+###############################################
+###
+### DEPARTMENTS (4):
+###   - Information Technology
+###   - Human Resources
+###   - Finance
+###   - Sales
+###
+### EMPLOYEES (5):
+###   - E001: John Doe (IT)
+###   - E002: Sarah Smith (HR)
+###   - E003: Michael Johnson (Finance)
+###   - E004: Emma Wilson (Sales)
+###   - E005: David Brown (IT)
+###
+### TECHNICIANS (3):
+###   - T001: Alex Martinez
+###   - T002: Linda Garcia
+###   - T003: Robert Davis
+###
+### ADMINISTRATORS (2):
+###   - A001: Ahmed Alami
+###   - A002: Fatima Benani
+###
+### SHIFTS (3):
+###   - Morning: 08:00 - 16:00
+###   - Afternoon: 16:00 - 00:00
+###   - Night: 00:00 - 08:00
+###
+### TICKETS (4):
+###   - Email Server Down (HIGH)
+###   - Password Reset Request (MEDIUM)
+###   - Software Installation (LOW)
+###   - Internet Connection Issues (HIGH)
+###
+### PRESENCE RECORDS & LEAVE REQUESTS INCLUDED
+###
+### Note: Passwords are hashed automatically when saved.
+###       Change default passwords after initial setup!
+###

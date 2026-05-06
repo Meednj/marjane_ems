@@ -4,7 +4,7 @@ import {
   fetchDashboardStats,
   type DashboardData,
 } from "../api/dashboardService";
-import logo from "../assets/mainLogo.png";
+import Navbar from "../components/Navbar";
 
 const getToken = () => localStorage.getItem("token");
 
@@ -13,7 +13,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState<DashboardData>({
     totalUsers: 0,
     totalTickets: 0,
-    openTickets: 0,
+    pendingTickets: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,8 +47,7 @@ const Dashboard = () => {
           setStats({
             totalUsers: 0,
             totalTickets: 0,
-            openTickets: 0,
-        
+            pendingTickets: 0,
           });
         }
       } catch (err) {
@@ -59,8 +58,7 @@ const Dashboard = () => {
         setStats({
           totalUsers: 0,
           totalTickets: 0,
-          openTickets: 0,
-          
+          pendingTickets: 0,
         });
       } finally {
         setLoading(false);
@@ -150,7 +148,7 @@ const Dashboard = () => {
         </svg>
       ),
       label: "Total Tickets",
-      value: stats.totalTickets ?? "—",
+      value: stats.totalTickets || "—",
       bgColor: "bg-indigo-50",
       textColor: "text-indigo-600",
     },
@@ -171,8 +169,8 @@ const Dashboard = () => {
           />
         </svg>
       ),
-      label: "Open Tickets",
-      value: stats.openTickets ?? "—",
+      label: "Pending Tickets",
+      value: stats.pendingTickets || "—",
       bgColor: "bg-orange-50",
       textColor: "text-orange-600",
     },
@@ -289,7 +287,6 @@ const Dashboard = () => {
           stroke="currentColor"
           className="w-8 h-8"
         >
-          
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -301,9 +298,8 @@ const Dashboard = () => {
       color: "border-indigo-500",
       permission: userPermissions?.canViewAllTickets || false,
     },
-    
+
     {
-      
       title: "Assigned Tickets",
       description: "View tickets assigned to you",
       icon: (
@@ -400,41 +396,12 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="bg-white shadow-lg border-b-4 border-indigo-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="Marjane EMS" className="h-10 w-auto" />
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Administration Dashboard
-                </h1>
-                <p className="text-sm text-gray-600">
-                  Employee Management System
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-900">
-                {userRole ? (
-                  <>
-                    Role:{" "}
-                    <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-semibold capitalize">
-                      {userRole}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-red-600 font-semibold">
-                    Not authenticated
-                  </span>
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      <Navbar
+        userRole={userRole}
+        title="Administration Dashboard"
+        subtitle="Employee Management System"
+      />
+      
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Error Alert */}
@@ -596,7 +563,6 @@ const Dashboard = () => {
           </>
         )}
       </main>
-
       {/* Footer */}
       <footer className="bg-gray-900 border-t border-gray-800 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

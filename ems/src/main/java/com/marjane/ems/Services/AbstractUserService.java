@@ -4,6 +4,7 @@ import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.Entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 @RequiredArgsConstructor
@@ -38,6 +39,7 @@ public abstract class AbstractUserService<T extends User, REQ, RES> implements B
     }
 
     @Override
+    @Transactional
     public void delete(String EID) {
         validateEID(EID);
         if (!userRepository.existsByEid(EID)) throw new RuntimeException("User not found");

@@ -3,20 +3,17 @@ package com.marjane.ems.auth;
 import java.io.IOException;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import com.marjane.ems.DAL.UserRepository;
-import com.marjane.ems.Entities.Role;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -24,64 +21,48 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @Autowired
-    private UserRepository userRepository;
-
-   @Override
+    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        String authHeader = request.getHeader("Authorization");
 
-        if (path.startsWith("/api/auth/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
-        final String authHeader = request.getHeader("Authorization");
+            String token = authHeader.substring(7);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Missing token");
-            return;
-        }
+            try {
+                String eid = jwtUtil.extractEid(token);
+                String role = jwtUtil.extractRole(token);
 
-        String token = authHeader.substring(7);
+                if (eid != null && role != null) {
+                    SimpleGrantedAuthority authority =
+                            new SimpleGrantedAuthority("ROLE_" + role);
 
-        try {
-            String username = jwtUtil.extractUsername(token);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    eid,
+                                    null,
+                                    List.of(authority)
+                            );
 
-            if (username != null && jwtUtil.isTokenValid(token)) {
-
-                var userOptional = userRepository.findByUsername(username)
-                        .or(() -> userRepository.findByEmail(username))
-                        .or(() -> userRepository.findByEid(username));
-
-                if (userOptional.isPresent()) {
-
-                    Role role = userOptional.get().getRole();
-
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            username,
-                            null,
-                            List.of(new SimpleGrantedAuthority("ROLE_" + role.name())));
-
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-
-                    filterChain.doFilter(request, response);
-                    return;
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    System.out.println("JWT Valid - EID: " + eid + ", Role: " + role);
+                } else {
+                    System.out.println("JWT claims missing - EID: " + eid + ", Role: " + role);
                 }
+                
+            } catch (Exception e) {
+                System.out.println("Invalid JWT: " + e.getMessage());
+                e.printStackTrace();
             }
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid token");
-            /* System.out.println("REQUEST URI: " + request.getRequestURI());
-            System.out.println("SERVLET PATH: " + request.getServletPath()); */
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Token error");
+        } else {
+            System.out.println("No Authorization header or missing Bearer prefix");
         }
+
+        filterChain.doFilter(request, response);
+        
     }
 }

@@ -4,11 +4,13 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.marjane.ems.DAL.DepartmentRepository;
 import com.marjane.ems.DAL.EmployeRepository;
 import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.DTO.request.EmployeRequest;
 import com.marjane.ems.DTO.response.EmployeResponse;
 import com.marjane.ems.Entities.User;
+import com.marjane.ems.Entities.Department;
 import com.marjane.ems.Entities.Role;
 import com.marjane.ems.Entities.UserStatus;
 import com.marjane.ems.Mapper.EmployeMapper;
@@ -21,11 +23,16 @@ import com.marjane.ems.Mapper.EmployeMapper;
 @Deprecated
 public class EmployeServiceImpl extends AbstractUserService<User, EmployeRequest, EmployeResponse>
         implements EmployeService {
+        
 
+    private final DepartmentRepository departmentRepository;
     public EmployeServiceImpl(UserRepository userRepository, 
-                              PasswordEncoder passwordEncoder, 
-                              EmployeRepository employeRepository) {
+                            PasswordEncoder passwordEncoder, 
+                            EmployeRepository employeRepository,
+                            DepartmentRepository departmentRepository) {
+
         super(userRepository, passwordEncoder);
+        this.departmentRepository = departmentRepository;
     }
 
     @Override
@@ -56,14 +63,17 @@ public class EmployeServiceImpl extends AbstractUserService<User, EmployeRequest
         return mapToResponse(userRepository.save(employe));
     }
     @Override
-    public List<EmployeResponse> getByDepartement(String departement) {
+    public List<EmployeResponse> getByDepartement(String departementName) {
+
         List<User> employes = userRepository.findByRole(Role.EMPLOYEE).stream()
-            .filter(user -> user.getDepartment() != null && user.getDepartment().equals(departement))
+            .filter(user -> user.getDepartment() != null &&
+                    user.getDepartment().getName().equalsIgnoreCase(departementName))
             .toList();
-        
+
         if (employes.isEmpty()) {
-            throw new RuntimeException("No employes found for departement: " + departement);
+            throw new RuntimeException("No employes found for departement: " + departementName);
         }
+
         return employes.stream().map(EmployeMapper::toResponse).toList();
     }
 
@@ -92,11 +102,26 @@ public class EmployeServiceImpl extends AbstractUserService<User, EmployeRequest
 
     @Override
     protected User mapToEntity(EmployeRequest request) {
-        return EmployeMapper.toEntity(request);
+
+        Department department = null;
+        if (request.departmentId() != null) {
+            department = departmentRepository.findById(request.departmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+        }
+
+        return EmployeMapper.toEntity(request, department);
     }
 
     @Override
     protected void updateEntityFromRequest(User entity, EmployeRequest request) {
-        EmployeMapper.updateEntity(entity, request);
+
+        Department department = null;
+
+        if (request.departmentId() != null) {
+            department = departmentRepository.findById(request.departmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+        }
+
+        EmployeMapper.updateEntity(entity, request, department);
     }
 }

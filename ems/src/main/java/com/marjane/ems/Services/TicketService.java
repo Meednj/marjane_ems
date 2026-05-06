@@ -2,6 +2,8 @@ package com.marjane.ems.Services;
 
 import com.marjane.ems.DTO.request.TicketRequest;
 import com.marjane.ems.DTO.response.TicketResponse;
+import com.marjane.ems.Entities.TicketStatus;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +11,7 @@ public interface TicketService {
     TicketResponse createTicket(TicketRequest request);
     Optional<TicketResponse> getTicketById(Long id);
     List<TicketResponse> getAllTickets();
-    List<TicketResponse> getTicketsByStatus(String status);
+    List<TicketResponse> getTicketsByStatus(TicketStatus status);
     List<TicketResponse> getTicketsByPriority(String priority);
     List<TicketResponse> getTicketsByCategory(String category);
     List<TicketResponse> getTicketsByCreator(Long creatorId);
@@ -20,5 +22,5 @@ public interface TicketService {
     TicketResponse updateTicketStatus(Long ticketId, String status);
 
     void deleteTicket(Long id);
-    Long countTicketsByStatus(String status);
+    Long countTicketsByStatus(TicketStatus status);
 }

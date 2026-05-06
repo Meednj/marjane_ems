@@ -63,57 +63,32 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public List<TicketResponse> getTicketsByStatus(String status) {
+    public List<TicketResponse> getTicketsByStatus(TicketStatus status) {
         List<Ticket> tickets = ticketRepository.findByStatusIgnoreCase(status);
-
-        if (tickets.isEmpty()) {
-            throw new RuntimeException("No tickets found with status: " + status);
-        }
-
         return tickets.stream().map(TicketMapper::toResponse).toList();
     }
 
     @Override
     public List<TicketResponse> getTicketsByPriority(String priority) {
         List<Ticket> tickets = ticketRepository.findByPriorityIgnoreCase(priority);
-
-        if (tickets.isEmpty()) {
-            throw new RuntimeException("No tickets found with priority: " + priority);
-        }
-
         return tickets.stream().map(TicketMapper::toResponse).toList();
     }
 
     @Override
     public List<TicketResponse> getTicketsByCategory(String category) {
         List<Ticket> tickets = ticketRepository.findByCategoryIgnoreCase(category);
-
-        if (tickets.isEmpty()) {
-            throw new RuntimeException("No tickets found with category: " + category);
-        }
-
         return tickets.stream().map(TicketMapper::toResponse).toList();
     }
 
     @Override
     public List<TicketResponse> getTicketsByCreator(Long creatorId) {
         List<Ticket> tickets = ticketRepository.findByCreatorId(creatorId);
-
-        if (tickets.isEmpty()) {
-            throw new RuntimeException("No tickets found for creator ID: " + creatorId);
-        }
-
         return tickets.stream().map(TicketMapper::toResponse).toList();
     }
 
     @Override
     public List<TicketResponse> getTicketsByTechnician(Long technicianId) {
         List<Ticket> tickets = ticketRepository.findByTechnicianId(technicianId);
-
-        if (tickets.isEmpty()) {
-            throw new RuntimeException("No tickets found for technician ID: " + technicianId);
-        }
-
         return tickets.stream().map(TicketMapper::toResponse).toList();
     }
 
@@ -168,7 +143,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Long countTicketsByStatus(String status) {
-        return ticketRepository.countByStatusIgnoreCase(status);
+    public Long countTicketsByStatus(TicketStatus status) {
+        return ticketRepository.countByStatus(status);
     }
 }

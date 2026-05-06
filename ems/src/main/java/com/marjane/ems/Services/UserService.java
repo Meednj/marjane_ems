@@ -1,7 +1,9 @@
 package com.marjane.ems.Services;
 
+import com.marjane.ems.DAL.DepartmentRepository;
 import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.Entities.User;
+import com.marjane.ems.Entities.Department;
 import com.marjane.ems.Entities.Role;
 import com.marjane.ems.Entities.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    
+    @Autowired
+    private DepartmentRepository departmentRepository;
     /**
      * Register a new user with the system.
      * Auto-generates EID based on role.
@@ -65,10 +69,16 @@ public class UserService {
     @Transactional
     public User registerEmployee(String username, String email, String password,
                                 String firstName, String lastName,
-                                String department, UserStatus status) {
+                                Long departmentId, UserStatus status) {
+
         User user = registerUser(username, email, password, Role.EMPLOYEE, firstName, lastName);
+
+        Department department = departmentRepository.findById(departmentId)
+            .orElseThrow(() -> new RuntimeException("Department not found"));
+
         user.setDepartment(department);
         user.setStatus(status != null ? status : UserStatus.ACTIVE);
+
         return userRepository.save(user);
     }
 
@@ -126,15 +136,20 @@ public class UserService {
      */
     @Transactional
     public User updateUser(Long id, String firstName, String lastName, 
-                          String phone, String department) {
+                        String phone, Long departmentId) {
+
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (firstName != null) user.setFirstName(firstName);
         if (lastName != null) user.setLastName(lastName);
         if (phone != null) user.setPhone(phone);
-        if (department != null && user.getRole() == Role.EMPLOYEE) {
-            user.setDepartment(department);
+
+        if (departmentId != null && user.getRole() == Role.EMPLOYEE) {
+            Department dept = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+            user.setDepartment(dept);
         }
 
         return userRepository.save(user);

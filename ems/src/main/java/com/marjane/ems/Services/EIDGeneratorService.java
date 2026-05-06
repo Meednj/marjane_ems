@@ -20,18 +20,37 @@ public class EIDGeneratorService {
     /**
      * Generates the next sequential EID for a given role.
      * Format: {ROLE_PREFIX}{3-digit-number}
+     * Counts all EIDs with the role prefix to determine the next number.
      * 
      * @param role The role for which to generate EID
      * @return Sequential EID (e.g., "E001", "T042", "A005")
      */
     @Transactional
     public String generateEID(Role role) {
-        // Count existing users with this role
-        long count = countUsersByRole(role);
+        if (role == null) {
+            throw new IllegalArgumentException("Role cannot be null");
+        }
+
+        // Get the prefix for this role (E for EMPLOYEE, T for TECHNICIAN, A for ADMIN)
+        String prefix = role.getPrefix();
+        
+        // Count all users with EIDs starting with this prefix
+        long count = userRepository.findAll().stream()
+            .filter(u -> u.getEid() != null && u.getEid().startsWith(prefix))
+            .count();
+        
         long nextNumber = count + 1;
         
         // Format: E001, T042, A005, etc.
-        return String.format("%s%03d", role.getPrefix(), nextNumber);
+        String newEid = String.format("%s%03d", prefix, nextNumber);
+        
+        // Ensure uniqueness (in case of race conditions)
+        while (eidExists(newEid)) {
+            nextNumber++;
+            newEid = String.format("%s%03d", prefix, nextNumber);
+        }
+        
+        return newEid;
     }
 
     /**

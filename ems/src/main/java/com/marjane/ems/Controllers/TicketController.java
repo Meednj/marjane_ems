@@ -3,6 +3,8 @@ package com.marjane.ems.Controllers;
 import com.marjane.ems.Services.TicketService;
 import com.marjane.ems.DTO.request.TicketRequest;
 import com.marjane.ems.DTO.response.TicketResponse;
+import com.marjane.ems.Entities.TicketStatus;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +34,14 @@ public class TicketController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<TicketResponse>> getTicketsByStatus(@PathVariable String status) {
+    public ResponseEntity<List<TicketResponse>> getTicketsByStatus(@PathVariable TicketStatus status) {
         return ResponseEntity.ok(ticketService.getTicketsByStatus(status));
     }
     @GetMapping("/count/status/{status}")
     public Long countTicketsByStatus(@PathVariable String status) {
-        return Long.valueOf(ticketService.getTicketsByStatus(status).size());
+        return ticketService.countTicketsByStatus(
+            TicketStatus.valueOf(status.toUpperCase())
+        );
     }
 
     @GetMapping("/priority/{priority}")
@@ -87,8 +91,4 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 
-    /* @GetMapping("/count/status/{status}")
-    public Long countTicketsByStatus(@PathVariable String status) {
-        return Long.valueOf(ticketService.countTicketsByStatus(status).size());
-    } */
 }

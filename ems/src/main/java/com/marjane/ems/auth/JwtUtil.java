@@ -1,5 +1,6 @@
 package com.marjane.ems.auth;
 
+import java.security.Key;
 import java.util.Date;
 
 import org.springframework.stereotype.Component;
@@ -7,49 +8,41 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import javax.crypto.SecretKey;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET = "my_super_secure_jwt_secret_key_which_is_long_enough_123456";
-    private SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());;
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60;
 
-    public String generateToken(String username) {
+    private final String SECRET = "mysecretkeymysecretkeymysecretkey"; // must be long enough
+
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(SECRET.getBytes());
+    }
+
+    public String generateToken(String eid, String role) {
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setSubject(eid)
+                .claim("role", role)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 day
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    public String extractEid(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
     }
 
-    public boolean isTokenValid(String token) {
-        try {
-            Jwts.parserBuilder()
-                .setSigningKey(key)
+    public String extractRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
                 .build()
-                .parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public boolean validateToken(String token, String username) {
-        try {
-            return extractUsername(token).equals(username) && isTokenValid(token);
-        } catch (Exception e) {
-            return false;
-        }
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
     }
 }

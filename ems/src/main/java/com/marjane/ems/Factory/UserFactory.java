@@ -31,20 +31,14 @@ public class UserFactory {
             UserStatus.valueOf(request.status().toUpperCase()) : 
             UserStatus.ACTIVE);
         
-        // Set role-specific fields
-        if (role == Role.EMPLOYEE) {
-            user.setDepartment("UNASSIGNED");
-        }
+        
         
         return user;
     }
 
-    /**
-     * Create a user with a Role enum.
-     */
     public User createUser(UserRequest request, Role role) {
         User user = new User();
-        
+
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setEmail(request.email());
@@ -53,12 +47,7 @@ public class UserFactory {
         user.setStatus(request.status() != null ? 
             UserStatus.valueOf(request.status().toUpperCase()) : 
             UserStatus.ACTIVE);
-        
-        // Set role-specific fields
-        if (role == Role.EMPLOYEE) {
-            user.setDepartment("UNASSIGNED");
-        }
-        
+
         return user;
     }
 

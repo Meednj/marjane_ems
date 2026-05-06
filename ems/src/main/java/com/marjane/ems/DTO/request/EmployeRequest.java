@@ -23,8 +23,7 @@ public record EmployeRequest(
     @Size(min = 6, message = "Password must be at least 6 characters")
     String password,
 
-    @NotBlank(message = "Department is required")
-    String departement,
+    Long departmentId,
 
     String status
 ) {}

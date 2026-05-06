@@ -41,8 +41,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
+        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
 
         authBuilder
                 .userDetailsService(customUserDetailsService)
@@ -50,7 +49,7 @@ public class SecurityConfig {
 
         return authBuilder.build();
     }
-
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -69,6 +68,20 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/diagnostic/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/admin/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/employees", "/api/employees/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/employees", "/api/employees/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/employees", "/api/employees/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/employees", "/api/employees/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/users", "/api/users/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/users", "/api/users/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/users", "/api/users/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/**").authenticated()
+                .requestMatchers("/api/tickets/**").authenticated()
                 .anyRequest().authenticated()
             )
 
@@ -78,12 +91,14 @@ public class SecurityConfig {
         return http.build();
     }
 
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(List.of(
             "http://localhost:5173",
+            "http://localhost:5174",
             "http://localhost:3000"
         ));
 
@@ -92,6 +107,7 @@ public class SecurityConfig {
         ));
 
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Type", "X-Total-Count"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
@@ -100,4 +116,6 @@ public class SecurityConfig {
 
         return source;
     }
+    
+    
 }
