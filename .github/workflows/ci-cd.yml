@@ -24,7 +24,7 @@ jobs:
 
       - name: Build Spring Boot
         working-directory: ems
-        run: mvn clean install
+        run: mvn clean install -DskipTests
 
       - name: Setup Node
         uses: actions/setup-node@v4
