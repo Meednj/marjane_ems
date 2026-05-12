@@ -29,7 +29,10 @@ public class TicketFactory {
 
         Ticket ticket = new Ticket();
         ticket.setCreator(creator);
-        ticket.setTechnician(technician);
+        if (technician != null) {
+            if (ticket.getTechnicians() == null) ticket.setTechnicians(new java.util.ArrayList<>());
+            ticket.getTechnicians().add(technician);
+        }
         ticket.setTitle(request.title());
         ticket.setDescription(request.description());
         ticket.setCategory(TicketCategory.valueOf(request.category().toUpperCase()));

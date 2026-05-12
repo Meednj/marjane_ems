@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.Entities.User;
 import com.marjane.ems.Entities.Role;
 import com.marjane.ems.Services.UserService;
+import com.marjane.ems.Threading.AsyncAuditLogger;
 
 /**
  * Authentication controller for login and registration.
@@ -27,12 +29,15 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AsyncAuditLogger auditLogger;
+
     /**
      * Login endpoint - authenticates user and returns JWT token.
      * Accepts either username, email, or EID.
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         try {
             User user = findUserByCredential(request.eid());
             if (user == null) {
@@ -54,6 +59,7 @@ public class AuthController {
 
             // Generate JWT token
             String token = jwtUtil.generateToken(user.getEid(), user.getRole().name());
+            auditLogger.logAuthEvent(user.getEid(), "LOGIN_SUCCESS", httpRequest.getRequestURI());
 
             return ResponseEntity.ok(new AuthResponse(true, "Login successful", token, null, user.getRole().name()));
         } catch (Exception e) {

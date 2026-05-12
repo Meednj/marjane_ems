@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import {
   fetchEmployees,
@@ -10,11 +9,17 @@ import {
   fetchRoles,
   type EmployeeResponse,
   type EmployeeRequest,
+  promoteEmployeeToTechnician,
 } from "../api/employeeService";
+import {
+  fetchDepartments,
+  type DepartmentResponse,
+} from "../api/departmentService";
+import { createTechnician, updateTechnician } from "../api/technicianService";
+import { TEAM_GROUP_OPTIONS, fetchTeamGroups } from "../api/teamGroupService";
 import { getRole } from "../api/auth";
 
 const Employees = () => {
-  const navigate = useNavigate();
   const [employees, setEmployees] = useState<EmployeeResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +30,8 @@ const Employees = () => {
   const [roleOptions, setRoleOptions] = useState<
     Array<{ value: string; label: string }>
   >([]);
+  const [departments, setDepartments] = useState<DepartmentResponse[]>([]);
+  const [teamGroups, setTeamGroups] = useState<string[]>(TEAM_GROUP_OPTIONS);
   const [sortBy, setSortBy] = useState<keyof EmployeeResponse>("firstName");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,6 +49,7 @@ const Employees = () => {
     departmentId: undefined,
     status: "ACTIVE",
     role: "",
+    teamGroup: "",
   });
   const [editFormData, setEditFormData] = useState<{
     employeeId: string;
@@ -54,6 +62,7 @@ const Employees = () => {
     status: string;
     EID?: string;
     role?: string;
+    teamGroup?: string;
     createdAt?: string;
     updatedAt?: string;
   }>({
@@ -69,6 +78,30 @@ const Employees = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const getToken = () => localStorage.getItem("token");
+
+  const getEmployeeDepartmentName = (employee: EmployeeResponse) => {
+    const flatDepartmentName = (
+      employee as EmployeeResponse & { departement?: string }
+    ).departement;
+
+    return employee.department?.name || flatDepartmentName || "—";
+  };
+
+  const getEmployeeDepartmentId = (employee: EmployeeResponse) => {
+    if (employee.departmentId) {
+      return employee.departmentId;
+    }
+
+    const departmentName =
+      employee.department?.name ||
+      (employee as EmployeeResponse & { departement?: string }).departement;
+    if (!departmentName) {
+      return undefined;
+    }
+
+    return departments.find((dept) => dept.name === departmentName)
+      ?.departmentId;
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -95,15 +128,25 @@ const Employees = () => {
         }
 
         // Load employees, statuses, and roles in parallel
-        const [employeesData, statuses, roles] = await Promise.all([
-          fetchEmployees(),
-          fetchUserStatuses(),
-          fetchRoles(),
-        ]);
+        const [employeesData, statuses, roles, departmentsData] =
+          await Promise.all([
+            fetchEmployees(),
+            fetchUserStatuses(),
+            fetchRoles(),
+            fetchDepartments(),
+          ]);
+
+        const teamGroupsData = await fetchTeamGroups();
 
         setEmployees(employeesData);
         setStatusOptions(statuses);
         setRoleOptions(roles);
+        setDepartments(departmentsData);
+        setTeamGroups(
+          teamGroupsData.length > 0
+            ? teamGroupsData.map((group) => group.name)
+            : TEAM_GROUP_OPTIONS,
+        );
       } catch (err) {
         console.error("Error loading employees:", err);
         setError("Failed to load employees. Please try again.");
@@ -162,6 +205,8 @@ const Employees = () => {
       password: "",
       departmentId: undefined,
       status: "ACTIVE",
+      role: "",
+      teamGroup: "",
     });
     setShowModal(true);
   };
@@ -176,10 +221,11 @@ const Employees = () => {
       email: employee.email,
       phone: employee.phone || "",
       password: "",
-      departmentId: employee.departmentId,
+      departmentId: getEmployeeDepartmentId(employee),
       status: employee.status || "ACTIVE",
       EID: employee.EID || "",
       role: employee.role || "Employee",
+      teamGroup: employee.teamGroup || "",
       createdAt: employee.createdAt || "",
       updatedAt: employee.updatedAt || "",
     });
@@ -197,6 +243,8 @@ const Employees = () => {
       password: "",
       departmentId: undefined,
       status: "ACTIVE",
+      role: "",
+      teamGroup: "",
     });
     setEditFormData({
       employeeId: "",
@@ -207,6 +255,7 @@ const Employees = () => {
       password: "",
       departmentId: undefined,
       status: "ACTIVE",
+      teamGroup: "",
     });
   };
 
@@ -224,6 +273,9 @@ const Employees = () => {
               ? parseInt(value)
               : undefined
             : value,
+        ...(name === "role" && value.toUpperCase() !== "TECHNICIAN"
+          ? { teamGroup: "" }
+          : {}),
       }));
     } else {
       setFormData((prev) => ({
@@ -234,6 +286,9 @@ const Employees = () => {
               ? parseInt(value)
               : undefined
             : value,
+        ...(name === "role" && value.toUpperCase() !== "TECHNICIAN"
+          ? { teamGroup: "" }
+          : {}),
       }));
     }
   };
@@ -243,31 +298,124 @@ const Employees = () => {
     setError(null);
 
     try {
+      const activeRole = (
+        modalMode === "create" ? formData.role : editFormData.role
+      )?.toUpperCase();
+
       if (modalMode === "create") {
-        const newEmployee = await createEmployee(formData);
-        setEmployees((prev) => [...prev, newEmployee]);
+        if (activeRole === "TECHNICIAN") {
+          if (!formData.teamGroup) {
+            setError("Please select a team group for the technician.");
+            return;
+          }
+
+          if (!formData.password) {
+            setError("Password is required for a new technician.");
+            return;
+          }
+
+          const newTechnician = await createTechnician({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone || "",
+            password: formData.password,
+            status: formData.status,
+            teamGroup: formData.teamGroup,
+          });
+
+          setEmployees((prev) => [...prev, newTechnician as EmployeeResponse]);
+        } else {
+          const newEmployee = await createEmployee(formData);
+          setEmployees((prev) => [...prev, newEmployee]);
+        }
       } else if (selectedEmployee) {
-        // When editing, only send modifiable fields (not eid, createdAt, updatedAt)
-        const updatePayload: Partial<EmployeeRequest> = {
-          firstName: editFormData.firstName,
-          lastName: editFormData.lastName,
-          email: editFormData.email,
-          phone: editFormData.phone,
-          departmentId: editFormData.departmentId,
-          status: editFormData.status,
-        };
-        const updatedEmployee = await updateEmployee(
-          selectedEmployee.EID || "",
-          updatePayload,
-        );
-        setEmployees((prev) =>
-          prev.map((emp) =>
-            (emp.employeeId || emp.id) ===
-            (selectedEmployee.employeeId || selectedEmployee.id)
-              ? updatedEmployee
-              : emp,
-          ),
-        );
+        if (
+          activeRole === "TECHNICIAN" ||
+          selectedEmployee.role === "TECHNICIAN"
+        ) {
+          if (!editFormData.teamGroup) {
+            setError("Please select a team group for the technician.");
+            return;
+          }
+
+          if (selectedEmployee.role === "TECHNICIAN") {
+            const updatedTechnician = await updateTechnician(
+              selectedEmployee.EID || "",
+              {
+                firstName: editFormData.firstName,
+                lastName: editFormData.lastName,
+                email: editFormData.email,
+                phone: editFormData.phone,
+                password: editFormData.password || undefined,
+                status: editFormData.status,
+                teamGroup: editFormData.teamGroup,
+              },
+            );
+
+            setEmployees((prev) =>
+              prev.map((emp) =>
+                (emp.employeeId || emp.id) ===
+                (selectedEmployee.employeeId || selectedEmployee.id)
+                  ? (updatedTechnician as EmployeeResponse)
+                  : emp,
+              ),
+            );
+          } else {
+            const updatedEmployee = await updateEmployee(
+              selectedEmployee.EID || "",
+              {
+                firstName: editFormData.firstName,
+                lastName: editFormData.lastName,
+                email: editFormData.email,
+                phone: editFormData.phone,
+                departmentId: editFormData.departmentId,
+                status: editFormData.status,
+                role: editFormData.role,
+              },
+            );
+
+            const promotedTechnician = await promoteEmployeeToTechnician(
+              selectedEmployee.id || 0,
+              editFormData.teamGroup,
+            );
+
+            setEmployees((prev) =>
+              prev.map((emp) =>
+                (emp.employeeId || emp.id) ===
+                (selectedEmployee.employeeId || selectedEmployee.id)
+                  ? {
+                      ...updatedEmployee,
+                      ...promotedTechnician,
+                    }
+                  : emp,
+              ),
+            );
+          }
+        } else {
+          // When editing, only send modifiable fields (not eid, createdAt, updatedAt)
+          const updatePayload: Partial<EmployeeRequest> = {
+            firstName: editFormData.firstName,
+            lastName: editFormData.lastName,
+            email: editFormData.email,
+            phone: editFormData.phone,
+            departmentId: editFormData.departmentId,
+            status: editFormData.status,
+            role: editFormData.role,
+          };
+          const updatedEmployee = await updateEmployee(
+            selectedEmployee.EID || "",
+            updatePayload,
+          );
+          setEmployees((prev) =>
+            prev.map((emp) =>
+              (emp.employeeId || emp.id) ===
+              (selectedEmployee.employeeId || selectedEmployee.id)
+                ? updatedEmployee
+                : emp,
+            ),
+          );
+        }
       }
       closeModal();
     } catch (err) {
@@ -322,7 +470,7 @@ const Employees = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900">
       <Navbar
         userRole={userRole}
         title="Employees Management"
@@ -473,7 +621,7 @@ const Employees = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white">
+                      <tr className="bg-linear-to-r from-indigo-600 to-indigo-700 text-white">
                         <th className="px-6 py-4 text-left">
                           <button
                             onClick={() => handleSort("EID")}
@@ -567,7 +715,7 @@ const Employees = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-gray-600 font-mono text-sm">
-                            {employee.department?.name || "—"}
+                            {getEmployeeDepartmentName(employee)}
                           </td>
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center gap-2">
@@ -630,7 +778,7 @@ const Employees = () => {
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-96 overflow-y-auto">
-            <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 text-white flex items-center justify-between">
+            <div className="sticky top-0 bg-linear-to-r from-indigo-600 to-indigo-700 px-6 py-4 text-white flex items-center justify-between">
               <h3 className="text-xl font-bold">
                 {modalMode === "create" ? "Add New Employee" : "Edit Employee"}
               </h3>
@@ -815,12 +963,43 @@ const Employees = () => {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              {(modalMode === "create" ? formData.role : editFormData.role) ===
+                "TECHNICIAN" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Team Group
+                    </label>
+                    <select
+                      name="teamGroup"
+                      value={
+                        modalMode === "create"
+                          ? formData.teamGroup || ""
+                          : editFormData.teamGroup || ""
+                      }
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                    >
+                      <option value="">Select a team group</option>
+                      {teamGroups.map((group) => (
+                        <option key={group} value={group}>
+                          {group}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {(modalMode === "create" ? formData.role : editFormData.role) !==
+                "TECHNICIAN" && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Department ID
+                    Department
                   </label>
-                  <input
-                    type="number"
+                  <select
                     name="departmentId"
                     value={
                       modalMode === "create"
@@ -828,10 +1007,20 @@ const Employees = () => {
                         : editFormData.departmentId || ""
                     }
                     onChange={handleFormChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 "
-                  />
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                  >
+                    <option value="">Select a department</option>
+                    {departments.map((dept) => (
+                      <option
+                        key={dept.departmentId}
+                        value={dept.departmentId || ""}
+                      >
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
+              )}
 
               {modalMode === "create" && (
                 <div>

@@ -49,9 +49,9 @@ public class JwtFilter extends OncePerRequestFilter {
                             );
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    System.out.println("JWT Valid - EID: " + eid + ", Role: " + role);
+                    
                 } else {
-                    System.out.println("JWT claims missing - EID: " + eid + ", Role: " + role);
+                    
                 }
                 
             } catch (Exception e) {

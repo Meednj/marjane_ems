@@ -1,4 +1,5 @@
 import { useEffect, useState, type JSX } from "react";
+import { useNavigate } from "react-router-dom";
 import { getRole } from "../api/auth";
 import {
   fetchDashboardStats,
@@ -9,11 +10,15 @@ import Navbar from "../components/Navbar";
 const getToken = () => localStorage.getItem("token");
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [stats, setStats] = useState<DashboardData>({
     totalUsers: 0,
     totalTickets: 0,
     pendingTickets: 0,
+    totalLeaves: 0,
+    pendingLeaves: 0,
+    departmentsCount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,21 +40,8 @@ const Dashboard = () => {
 
         setUserRole(role);
 
-        // Only fetch data if user is admin
-        if (role.toLowerCase().includes("admin")) {
-          const dashboardData = await fetchDashboardStats();
-          setStats(dashboardData);
-        } else {
-          // For non-admin users
-          setError(
-            `Limited access: Some statistics are only available to administrators. You are logged in as ${role}.`,
-          );
-          setStats({
-            totalUsers: 0,
-            totalTickets: 0,
-            pendingTickets: 0,
-          });
-        }
+        const dashboardData = await fetchDashboardStats();
+        setStats(dashboardData);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
         setError(
@@ -59,6 +51,9 @@ const Dashboard = () => {
           totalUsers: 0,
           totalTickets: 0,
           pendingTickets: 0,
+          departmentsCount: 0,
+          totalLeaves: 0,
+          pendingLeaves: 0,
         });
       } finally {
         setLoading(false);
@@ -80,7 +75,7 @@ const Dashboard = () => {
       canManageDepartments: true,
     },
     technician: {
-      canViewAllTickets: true,
+      canViewAllTickets: false,
       canManageTickets: true,
       canViewAssigned: true,
       canManageEmployees: false,
@@ -88,8 +83,8 @@ const Dashboard = () => {
       canManageDepartments: false,
     },
     employee: {
-      canViewAllTickets: true,
-      canManageTickets: false,
+      canViewAllTickets: false,
+      canManageTickets: true,
       canViewAssigned: false,
       canManageEmployees: false,
       canViewReports: false,
@@ -105,6 +100,7 @@ const Dashboard = () => {
     value: number | string;
     bgColor: string;
     textColor: string;
+    link?: string;
   }
 
   const statCards: StatCard[] = [
@@ -217,6 +213,7 @@ const Dashboard = () => {
       value: stats.pendingLeaves || "—",
       bgColor: "bg-green-50",
       textColor: "text-green-600",
+      link: "/leave-requests",
     },
     {
       icon: (
@@ -239,8 +236,22 @@ const Dashboard = () => {
       value: stats.totalLeaves || "—",
       bgColor: "bg-rose-50",
       textColor: "text-rose-600",
+      link: "/leave-requests",
     },
   ];
+
+  const visibleStatCards = statCards.filter((card) => {
+    if (role !== "employee") {
+      return true;
+    }
+
+    return ![
+      "Total Tickets",
+      "Pending Tickets",
+      "Pending Leaves",
+      "Total Leaves",
+    ].includes(card.label);
+  });
 
   interface FeatureCard {
     title: string;
@@ -391,6 +402,29 @@ const Dashboard = () => {
       color: "border-amber-500",
       permission: userPermissions?.canManageTickets || false,
     },
+    {
+      title: "Leave Requests",
+      description: "Request leave or review pending approvals",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-8 h-8"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-5.25m0 0v-2.25m0 2.25h18m-13.5-2.25h2.25m-2.25 0h-4.5"
+          />
+        </svg>
+      ),
+      link: "/leave-requests",
+      color: "border-pink-500",
+      permission: true,
+    },
   ];
   const visibleFeatures = featureCards.filter((card) => card.permission);
 
@@ -401,7 +435,7 @@ const Dashboard = () => {
         title="Administration Dashboard"
         subtitle="Employee Management System"
       />
-      
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Error Alert */}
@@ -467,10 +501,11 @@ const Dashboard = () => {
                 Key Metrics
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {statCards.map((stat, index) => (
-                  <div
+                {visibleStatCards.map((stat, index) => (
+                  <button
                     key={index}
-                    className={`${stat.bgColor} rounded-lg p-6 border-l-4 ${stat.textColor} shadow-md hover:shadow-lg transition-shadow`}
+                    onClick={() => stat.link && navigate(stat.link)}
+                    className={`${stat.bgColor} rounded-lg p-6 border-l-4 ${stat.textColor} shadow-md hover:shadow-lg transition-shadow text-left ${stat.link ? "cursor-pointer" : "cursor-default"}`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -485,7 +520,7 @@ const Dashboard = () => {
                         {stat.icon}
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -567,7 +602,7 @@ const Dashboard = () => {
       <footer className="bg-gray-900 border-t border-gray-800 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <p className="text-center text-gray-400 text-sm">
-            © 2024 Marjane Employee Management System. All rights reserved.
+            © 2026 Marjane Employee Management System. All rights reserved.
           </p>
         </div>
       </footer>

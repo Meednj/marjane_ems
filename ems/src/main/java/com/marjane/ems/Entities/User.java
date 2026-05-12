@@ -60,6 +60,10 @@ public class User {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_group_id")
+    private TeamGroup teamGroup;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -88,8 +92,13 @@ public class User {
     private List<Ticket> createdTickets;
 
     // Tickets assigned to this user (filtered by TECHNICIAN role)
-    @OneToMany(mappedBy = "technician", cascade = CascadeType.ALL)
-    private List<Ticket> assignedTickets;
+    @ManyToMany
+    @JoinTable(
+        name = "technician_tickets",
+        joinColumns = @JoinColumn(name = "technician_id"),
+        inverseJoinColumns = @JoinColumn(name = "ticket_id")
+    )
+    private List<Ticket> assignedTickets = new java.util.ArrayList<>();
 
     // Leaves approved by this user (filtered by ADMIN role)
     @OneToMany(mappedBy = "approver", cascade = CascadeType.ALL)

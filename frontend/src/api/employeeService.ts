@@ -16,6 +16,7 @@ export interface Employee {
   status?: string;
   EID?: string;
   role?: string;
+  teamGroup?: string;
 }
 
 export interface EmployeeResponse extends Employee {
@@ -35,6 +36,7 @@ export interface EmployeeRequest {
   departmentId?: number;
   status?: string;
   role?: string;
+  teamGroup?: string;
 }
 
 /**
@@ -95,6 +97,28 @@ export const updateEmployee = async (
     return response.data;
   } catch (error) {
     console.error("Error updating employee:", error);
+    throw error;
+  }
+};
+
+/**
+ * Promote an existing user to technician with a team group.
+ */
+export const promoteEmployeeToTechnician = async (
+  employeeId: number,
+  teamGroup: string,
+): Promise<EmployeeResponse> => {
+  try {
+    const response = await api.put(
+      `/api/users/${employeeId}/role/technician`,
+      null,
+      {
+        params: { teamGroup },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error promoting employee to technician:", error);
     throw error;
   }
 };

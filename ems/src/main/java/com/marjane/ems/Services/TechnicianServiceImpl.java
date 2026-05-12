@@ -7,8 +7,10 @@ import com.marjane.ems.DAL.TechnicianRepository;
 import com.marjane.ems.DAL.UserRepository;
 import com.marjane.ems.DTO.request.TechnicianRequest;
 import com.marjane.ems.DTO.response.TechnicianResponse;
+import com.marjane.ems.Entities.TeamGroupName;
 import com.marjane.ems.Entities.User;
 import com.marjane.ems.Entities.Role;
+import com.marjane.ems.Entities.UserStatus;
 import com.marjane.ems.Mapper.TechnicianMapper;
 
 /**
@@ -20,10 +22,14 @@ import com.marjane.ems.Mapper.TechnicianMapper;
 public class TechnicianServiceImpl extends AbstractUserService<User, TechnicianRequest, TechnicianResponse>
         implements TechnicianService {
 
+    private final TeamGroupService teamGroupService;
+
     public TechnicianServiceImpl(UserRepository userRepository,
                                 PasswordEncoder passwordEncoder,
-                                TechnicianRepository technicianRepository) {
+                                TechnicianRepository technicianRepository,
+                                TeamGroupService teamGroupService) {
         super(userRepository, passwordEncoder);
+        this.teamGroupService = teamGroupService;
     }
 
     @Override
@@ -32,11 +38,20 @@ public class TechnicianServiceImpl extends AbstractUserService<User, TechnicianR
             throw new IllegalArgumentException("Email already taken");
         }
 
+        if (request.password() == null || request.password().isBlank()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+
         User technician = mapToEntity(request);
         technician.setPassword(encodePassword(request.password()));
         technician.setRole(Role.TECHNICIAN);
 
-        return mapToResponse(userRepository.save(technician));
+        TeamGroupName groupName = resolveTeamGroupName(request.teamGroup());
+        technician.setTeamGroup(teamGroupService.getTeamGroupEntity(groupName));
+
+        TechnicianResponse response = mapToResponse(userRepository.save(technician));
+        teamGroupService.refreshAllGroupCounts();
+        return response;
     }
 
     @Override
@@ -52,13 +67,19 @@ public class TechnicianServiceImpl extends AbstractUserService<User, TechnicianR
         }
 
         updateEntityFromRequest(technician, request);
-        return mapToResponse(userRepository.save(technician));
+
+        TeamGroupName groupName = resolveTeamGroupName(request.teamGroup());
+        technician.setTeamGroup(teamGroupService.getTeamGroupEntity(groupName));
+
+        TechnicianResponse response = mapToResponse(userRepository.save(technician));
+        teamGroupService.refreshAllGroupCounts();
+        return response;
     }
 
     @Override
     public List<TechnicianResponse> getAvailableTechnicians() {
         List<User> technicians = userRepository.findByRole(Role.TECHNICIAN).stream()
-            .filter(user -> user.getStatus() != null && user.getStatus().isActive())
+            .filter(user -> user.getStatus() == UserStatus.ACTIVE)
             .toList();
 
         if (technicians.isEmpty()) {
@@ -66,6 +87,24 @@ public class TechnicianServiceImpl extends AbstractUserService<User, TechnicianR
         }
 
         return technicians.stream().map(TechnicianMapper::toResponse).toList();
+    }
+
+    @Override
+    public void delete(String EID) {
+        User technician = userRepository.findByEid(EID)
+            .filter(user -> user.getRole() == Role.TECHNICIAN)
+            .orElseThrow(() -> new RuntimeException("Technician not found with EID: " + EID));
+
+        userRepository.delete(technician);
+        teamGroupService.refreshAllGroupCounts();
+    }
+
+    private TeamGroupName resolveTeamGroupName(String rawName) {
+        if (rawName == null || rawName.isBlank()) {
+            return TeamGroupName.OTHER;
+        }
+
+        return TeamGroupName.valueOf(rawName.toUpperCase());
     }
 
     @Override

@@ -16,6 +16,7 @@ public record TechnicianResponse(
     String phone,
     String role,
     String status,
+    String teamGroup,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {}

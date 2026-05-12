@@ -18,6 +18,7 @@ public record EmployeResponse(
     String role,
     String status,
     String departement,
+    String teamGroup,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {}

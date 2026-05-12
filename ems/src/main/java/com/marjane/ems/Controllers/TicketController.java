@@ -28,6 +28,11 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.getTicketById(id));
     }
 
+    @GetMapping
+    public ResponseEntity<List<TicketResponse>> getAllTickets() {
+        return ResponseEntity.ok(ticketService.getAllTickets());
+    }
+
     @GetMapping("/count")
     public Long countTickets() {
         return Long.valueOf(ticketService.getAllTickets().size());

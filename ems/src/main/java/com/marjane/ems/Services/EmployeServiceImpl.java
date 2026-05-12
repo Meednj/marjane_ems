@@ -50,7 +50,6 @@ public class EmployeServiceImpl extends AbstractUserService<User, EmployeRequest
     @Override
     public EmployeResponse update(String EID, EmployeRequest request) {
         User employe = userRepository.findByEid(EID)
-            .filter(user -> user.getRole() == Role.EMPLOYEE)
             .orElseThrow(() -> new RuntimeException("Employee not found with EID: " + EID));
 
         if (request.email() != null && !request.email().equals(employe.getEmail())) {

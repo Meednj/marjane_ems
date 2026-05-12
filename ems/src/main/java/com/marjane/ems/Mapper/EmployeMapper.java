@@ -33,6 +33,9 @@ public class EmployeMapper {
             employe.getRole() != null ? employe.getRole().name() : null,
             employe.getStatus() != null ? employe.getStatus().name() : null,
             employe.getDepartment() != null ? employe.getDepartment().getName() : null,
+                employe.getTeamGroup() != null && employe.getTeamGroup().getName() != null
+                    ? employe.getTeamGroup().getName().name()
+                    : null,
             employe.getCreatedAt(),
             employe.getUpdatedAt()
     );

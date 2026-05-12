@@ -22,6 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.marjane.ems.auth.JwtFilter;
 import com.marjane.ems.Services.CustomUserDetailsService;
+import com.marjane.ems.Threading.RequestAuditFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -33,6 +34,9 @@ public class SecurityConfig {
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private RequestAuditFilter requestAuditFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -69,10 +73,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/diagnostic/**").permitAll()
+                .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/admin/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/users/me/status/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/employees", "/api/employees/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/employees", "/api/employees/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/employees", "/api/employees/**").hasRole("ADMIN")
@@ -86,7 +92,8 @@ public class SecurityConfig {
             )
 
             //JWT filter
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(requestAuditFilter, JwtFilter.class);
 
         return http.build();
     }

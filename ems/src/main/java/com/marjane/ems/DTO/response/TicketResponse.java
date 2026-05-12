@@ -1,6 +1,7 @@
 package com.marjane.ems.DTO.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Response DTO for Ticket entities.
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 public record TicketResponse(
     Long id,
     SimpleUserResponse creator,
-    SimpleUserResponse technician,
+    List<SimpleUserResponse> technicians,
     String title,
     String description,
     String category,

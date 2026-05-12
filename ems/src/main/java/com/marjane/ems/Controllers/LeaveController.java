@@ -2,6 +2,7 @@ package com.marjane.ems.Controllers;
 
 import com.marjane.ems.Services.LeaveService;
 import com.marjane.ems.DTO.request.LeaveRequest;
+import jakarta.validation.Valid;
 import com.marjane.ems.DTO.response.LeaveResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,7 +20,7 @@ public class LeaveController {
     private LeaveService leaveService;
 
     @PostMapping
-    public ResponseEntity<LeaveResponse> createLeave(@RequestBody LeaveRequest request) {
+    public ResponseEntity<LeaveResponse> createLeave(@Valid @RequestBody LeaveRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(leaveService.createLeave(request));
     }
 
@@ -66,7 +67,7 @@ public class LeaveController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LeaveResponse> updateLeave(@PathVariable Long id, @RequestBody LeaveRequest request) {
+    public ResponseEntity<LeaveResponse> updateLeave(@PathVariable Long id, @Valid @RequestBody LeaveRequest request) {
         return ResponseEntity.ok(leaveService.updateLeave(id, request));
     }
 

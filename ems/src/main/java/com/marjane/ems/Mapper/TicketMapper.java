@@ -3,6 +3,9 @@ package com.marjane.ems.Mapper;
 import com.marjane.ems.DTO.request.TicketRequest;
 import com.marjane.ems.DTO.response.TicketResponse;
 import com.marjane.ems.Entities.Ticket;
+import com.marjane.ems.Entities.TicketCategory;
+import com.marjane.ems.Entities.TicketPriority;
+import com.marjane.ems.Entities.TicketStatus;
 
 /**
  * Mapper class for Ticket entity to TicketResponse DTO.
@@ -17,10 +20,17 @@ public class TicketMapper {
             throw new IllegalArgumentException("Ticket cannot be null");
         }
 
+        java.util.List<com.marjane.ems.DTO.response.SimpleUserResponse> techs = ticket.getTechnicians() == null
+            ? java.util.Collections.emptyList()
+            : ticket.getTechnicians()
+                .stream()
+                .map(SimpleUserMapper::toResponse)
+                .toList();
+
         return new TicketResponse(
             ticket.getId(),
             ticket.getCreator() != null ? SimpleUserMapper.toResponse(ticket.getCreator()) : null,
-            ticket.getTechnician() != null ? SimpleUserMapper.toResponse(ticket.getTechnician()) : null,
+            techs,
             ticket.getTitle(),
             ticket.getDescription(),
             ticket.getCategory() != null ? ticket.getCategory().name() : null,
@@ -41,6 +51,15 @@ public class TicketMapper {
         Ticket ticket = new Ticket();
         ticket.setTitle(request.title());
         ticket.setDescription(request.description());
+        ticket.setCategory(request.category() != null
+            ? TicketCategory.valueOf(request.category().toUpperCase())
+            : null);
+        ticket.setPriority(request.priority() != null
+            ? TicketPriority.valueOf(request.priority().toUpperCase())
+            : null);
+        ticket.setStatus(request.status() != null
+            ? TicketStatus.valueOf(request.status().toUpperCase())
+            : TicketStatus.PENDING);
 
         return ticket;
     }
@@ -53,5 +72,14 @@ public class TicketMapper {
 
         entity.setTitle(request.title());
         entity.setDescription(request.description());
+        if (request.category() != null) {
+            entity.setCategory(TicketCategory.valueOf(request.category().toUpperCase()));
+        }
+        if (request.priority() != null) {
+            entity.setPriority(TicketPriority.valueOf(request.priority().toUpperCase()));
+        }
+        if (request.status() != null) {
+            entity.setStatus(TicketStatus.valueOf(request.status().toUpperCase()));
+        }
     }
 }

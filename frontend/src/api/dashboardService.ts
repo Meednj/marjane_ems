@@ -1,4 +1,5 @@
 import api from "./axios";
+import { fetchLeaves, fetchPendingLeaves } from "./leaveService";
 
 export interface DashboardData {
   totalUsers: number;
@@ -28,17 +29,34 @@ export interface Ticket {
  */
 export const fetchDashboardStats = async (): Promise<DashboardData> => {
   try {
-    const [usersCountRes, ticketsCountRes, pendingTicketsRes] =
-      await Promise.all([
-        fetchUserCount(),
-        fetchTicketsCount(),
-        fetchPendingTickets(),
-      ]);
+    const [
+      usersCountRes,
+      ticketsCountRes,
+      pendingTicketsRes,
+      departmentsCountRes,
+    ] = await Promise.all([
+      fetchUserCount(),
+      fetchTicketsCount(),
+      fetchPendingTickets(),
+      fetchDepartmentsCount(),
+    ]);
+
+    const [totalLeavesRes, pendingLeavesRes] = await Promise.all([
+      fetchLeaves()
+        .then((leaves) => leaves.length)
+        .catch(() => 0),
+      fetchPendingLeaves()
+        .then((leaves) => leaves.length)
+        .catch(() => 0),
+    ]);
 
     return {
       totalUsers: usersCountRes,
       totalTickets: ticketsCountRes,
       pendingTickets: pendingTicketsRes,
+      departmentsCount: departmentsCountRes,
+      totalLeaves: totalLeavesRes,
+      pendingLeaves: pendingLeavesRes,
     };
   } catch (error) {
     console.error("Error fetching dashboard stats:", error);
@@ -78,13 +96,22 @@ export const fetchTicketsCount = async (): Promise<number> => {
   }
 };
 
-
 export const fetchPendingTickets = async (): Promise<number> => {
   try {
     const response = await api.get("/api/tickets/count/status/PENDING");
     return response.data || 0;
   } catch (error) {
     console.error("Error fetching pending tickets:", error);
+    return 0;
+  }
+};
+
+export const fetchDepartmentsCount = async (): Promise<number> => {
+  try {
+    const response = await api.get("api/departments/count");
+    return response.data || 0;
+  } catch (error) {
+    console.error("Error fetching departments count:", error);
     return 0;
   }
 };

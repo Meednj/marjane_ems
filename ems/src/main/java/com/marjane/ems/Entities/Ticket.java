@@ -13,7 +13,6 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "tickets", indexes = {
     @Index(name = "idx_creator_id", columnList = "creator_id"),
-    @Index(name = "idx_technician_id", columnList = "technician_id"),
     @Index(name = "idx_status", columnList = "status"),
     @Index(name = "idx_created_at", columnList = "created_at")
 })
@@ -27,9 +26,8 @@ public class Ticket {
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;  // Any user can create
 
-    @ManyToOne
-    @JoinColumn(name = "technician_id")
-    private User technician;  // Filtered by TECHNICIAN role in service
+    @ManyToMany(mappedBy = "assignedTickets")
+    private java.util.List<User> technicians = new java.util.ArrayList<>();
 
     private String title;
     private String description;

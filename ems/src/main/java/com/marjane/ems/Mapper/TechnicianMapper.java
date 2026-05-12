@@ -31,6 +31,7 @@ public class TechnicianMapper {
             technician.getPhone(),
             technician.getRole() != null ? technician.getRole().name() : null,
             technician.getStatus() != null ? technician.getStatus().name() : null,
+            technician.getTeamGroup() != null ? technician.getTeamGroup().getName().name() : null,
             technician.getCreatedAt(),
             technician.getUpdatedAt()
         );
@@ -47,6 +48,7 @@ public class TechnicianMapper {
         technician.setFirstName(request.firstName());
         technician.setEmail(request.email());
         technician.setPhone(request.phone());
+        technician.setTeamGroup(null);
         technician.setStatus(request.status() != null ? 
             UserStatus.valueOf(request.status().toUpperCase()) : 
             UserStatus.ACTIVE);
@@ -66,6 +68,9 @@ public class TechnicianMapper {
         entity.setFirstName(request.firstName());
         entity.setEmail(request.email());
         entity.setPhone(request.phone());
+        if (request.teamGroup() == null || request.teamGroup().isBlank()) {
+            entity.setTeamGroup(null);
+        }
         entity.setStatus(request.status() != null ? 
             UserStatus.valueOf(request.status().toUpperCase()) : UserStatus.ACTIVE);
         entity.setUpdatedAt(LocalDateTime.now());

@@ -3,6 +3,7 @@ package com.marjane.ems.Mapper;
 import com.marjane.ems.DTO.request.LeaveRequest;
 import com.marjane.ems.DTO.response.LeaveResponse;
 import com.marjane.ems.Entities.Leave;
+import com.marjane.ems.Entities.LeaveType;
 
 /**
  * Mapper class for Leave entity to LeaveResponse DTO.
@@ -40,6 +41,9 @@ public class LeaveMapper {
         leave.setStartDate(request.startDate());
         leave.setEndDate(request.endDate());
         leave.setSubject(request.subject());
+        leave.setType(request.type() != null 
+            ? LeaveType.valueOf(request.type().toUpperCase()) 
+            : null);
 
         return leave;
     }
@@ -53,5 +57,8 @@ public class LeaveMapper {
         entity.setStartDate(request.startDate());
         entity.setEndDate(request.endDate());
         entity.setSubject(request.subject());
+        if (request.type() != null) {
+            entity.setType(LeaveType.valueOf(request.type().toUpperCase()));
+        }
     }
 }
