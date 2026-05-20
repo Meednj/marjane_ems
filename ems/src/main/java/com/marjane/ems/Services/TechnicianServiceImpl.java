@@ -43,9 +43,11 @@ public class TechnicianServiceImpl extends AbstractUserService<User, TechnicianR
         }
 
         User technician = mapToEntity(request);
+        // Ensure username is set (database requires non-null username)
+        technician.setUsername(request.email());
         technician.setPassword(encodePassword(request.password()));
         technician.setRole(Role.TECHNICIAN);
-
+        
         TeamGroupName groupName = resolveTeamGroupName(request.teamGroup());
         technician.setTeamGroup(teamGroupService.getTeamGroupEntity(groupName));
 
@@ -67,6 +69,10 @@ public class TechnicianServiceImpl extends AbstractUserService<User, TechnicianR
         }
 
         updateEntityFromRequest(technician, request);
+        // Keep username in sync with email when updated via API
+        if (request.email() != null && !request.email().isBlank()) {
+            technician.setUsername(request.email());
+        }
 
         TeamGroupName groupName = resolveTeamGroupName(request.teamGroup());
         technician.setTeamGroup(teamGroupService.getTeamGroupEntity(groupName));
@@ -104,7 +110,11 @@ public class TechnicianServiceImpl extends AbstractUserService<User, TechnicianR
             return TeamGroupName.OTHER;
         }
 
-        return TeamGroupName.valueOf(rawName.toUpperCase());
+        try {
+            return TeamGroupName.valueOf(rawName.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Invalid team group: " + rawName);
+        }
     }
 
     @Override

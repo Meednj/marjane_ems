@@ -34,19 +34,35 @@ public class RequestAuditFilter extends OncePerRequestFilter {
         }
 
         String path = request.getRequestURI();
-        String eid = resolveEidFromSecurityContext();
+        String eid = resolveEid(request);
         int statusCode = response.getStatus();
 
         auditLogger.logRequestEvent(eid, method, path, statusCode);
     }
 
-    private String resolveEidFromSecurityContext() {
+    private String resolveEid(HttpServletRequest request) {
+        Object requestEid = request.getAttribute("auditEid");
+        if (requestEid instanceof String eid && !eid.isBlank()) {
+            return eid;
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return "UNKNOWN";
         }
 
         Object principal = authentication.getPrincipal();
-        return principal instanceof String ? (String) principal : "UNKNOWN";
+        if (principal instanceof String eid && !eid.isBlank()) {
+            return eid;
+        }
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+            String username = userDetails.getUsername();
+            if (username != null && !username.isBlank()) {
+                return username;
+            }
+        }
+
+        return "UNKNOWN";
     }
 }

@@ -68,7 +68,7 @@ public class TeamGroupServiceImpl implements TeamGroupService {
     @Transactional(readOnly = true)
     public TeamGroup getTeamGroupEntity(TeamGroupName name) {
         return teamGroupRepository.findByName(name)
-            .orElseThrow(() -> new RuntimeException("Team group not found: " + name));
+            .orElseGet(() -> teamGroupRepository.save(teamGroupFactory.createTeamGroup(name)));
     }
 
     @Override

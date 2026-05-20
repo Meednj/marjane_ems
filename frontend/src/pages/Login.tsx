@@ -133,24 +133,7 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* Remember + Forgot */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-900 cursor-pointer"
-                />
-                <span className="text-slate-600 group-hover:text-slate-800 transition-colors font-medium">
-                  Remember me
-                </span>
-              </label>
-              <a
-                href="#"
-                className="text-indigo-600 hover:text-yellow-400 font-semibold transition-colors"
-              >
-                Forgot password?
-              </a>
-            </div>
+            
 
             {/* Button */}
             <button

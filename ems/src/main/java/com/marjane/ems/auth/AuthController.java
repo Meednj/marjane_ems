@@ -59,6 +59,7 @@ public class AuthController {
 
             // Generate JWT token
             String token = jwtUtil.generateToken(user.getEid(), user.getRole().name());
+            httpRequest.setAttribute("auditEid", user.getEid());
             auditLogger.logAuthEvent(user.getEid(), "LOGIN_SUCCESS", httpRequest.getRequestURI());
 
             return ResponseEntity.ok(new AuthResponse(true, "Login successful", token, null, user.getRole().name()));
